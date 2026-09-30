@@ -23,4 +23,4 @@ htmlcov/
 *.egg-info/
 build/
 dist/
-docs/
+docs/backlog.md
