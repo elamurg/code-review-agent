@@ -145,6 +145,8 @@ python -m reviewer.cli replay fixtures/events/pr_opened.json
 | `GITHUB_APP_ID`, `GITHUB_PRIVATE_KEY` | App authentication |
 | `GITHUB_WEBHOOK_SECRET` | Signature verification |
 | `DATABASE_URL`, `REDIS_URL`, `NEO4J_URI` | Storage |
+| `NEO4J_USER`, `NEO4J_PASSWORD` | Neo4j credentials, shared by the app and the container |
+| `POSTGRES_USER`, `POSTGRES_DB`, `POSTGRES_PASSWORD` | Postgres container setup; must match `DATABASE_URL` |
 | `MAX_TOKENS_PER_REVIEW` | Hard cost ceiling per PR |
 | `MIN_CONFIDENCE` | Suppression threshold |
 | `MAX_FINDINGS` | Cap per review |
