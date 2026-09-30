@@ -1,0 +1,26 @@
+
+#python byte code
+__pycache__/
+*.py[cod]
+
+#virtual env
+.venv/
+
+#tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+#secrets
+.env
+
+#OS and editor noise
+.DS_Store
+.idea/
+.vscode/
+*.egg-info/
+build/
+dist/
+docs/
