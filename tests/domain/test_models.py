@@ -81,9 +81,6 @@ def make_pull_request(**overrides: Any) -> PullRequest:
     return PullRequest(**fields)
 
 
-# --- valid construction ---------------------------------------------------------------
-
-
 def test_review_builds_from_valid_parts() -> None:
     review = Review(
         pull_request=make_pull_request(), findings=(make_finding(),), summary="One issue."
@@ -196,9 +193,6 @@ def test_valid_diff_files(diff_file: DiffFile) -> None:
 def test_deleted_file_path_falls_back_to_old_path() -> None:
     deleted = DiffFile(status=FileStatus.DELETED, old_path="gone.py", new_path=None)
     assert deleted.path == "gone.py"
-
-
-# --- invalid states raise -------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
