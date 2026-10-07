@@ -4,7 +4,7 @@ Every model validates itself on construction, so an instance that exists is vali
 
 import re
 from dataclasses import dataclass
-from enum import StrEnum #restricts values to a fixed set of strings
+from enum import StrEnum  # restricts values to a fixed set of strings
 
 from reviewer.domain.errors import DomainValidationError
 
@@ -36,7 +36,8 @@ class Severity(StrEnum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
-    #for capping findings by severity
+
+    # for capping findings by severity
     @property
     def rank(self) -> int:
         """Higher is more severe. Use this for ordering, never the string value."""
@@ -50,7 +51,8 @@ _SEVERITY_RANK = {
     Severity.CRITICAL: 3,
 }
 
-#four agent areas
+
+# four agent areas
 class Category(StrEnum):
     SECURITY = "security"
     PERFORMANCE = "performance"
@@ -70,9 +72,10 @@ class FileStatus(StrEnum):
     MODIFIED = "modified"
     RENAMED = "renamed"
 
-#solidifying that you cant change the field after creation,
-#managing smaller, faster objectt with slots (typos),
-#kw_only to force keyword args for clarity
+
+# solidifying that you cant change the field after creation,
+# managing smaller, faster objectt with slots (typos),
+# kw_only to force keyword args for clarity
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Line:
     """One line of a hunk, numbered on each side of the diff it exists on.
