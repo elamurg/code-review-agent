@@ -18,11 +18,13 @@ dependencies = [
 
 [project.optional-dependencies]
 # The deterministic analysers. Installed in the sandbox image and for local runs.
+# semgrep is deliberately not here: it pins many of its own dependencies exactly, and
+# installed alongside the app it forces fastapi down to an old version (or, with pip,
+# fails to resolve at all). Install it as an isolated tool: pipx install semgrep.
 analysis = [
     "ruff>=0.16.9",
     "mypy>=2.3.1",
     "bandit",
-    "semgrep",
     "pip-audit",
 ]
 dev = [
