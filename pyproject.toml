@@ -17,16 +17,30 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest",
+# The deterministic analysers. Installed in the sandbox image and for local runs.
+# semgrep is deliberately not here: it pins many of its own dependencies exactly, and
+# installed alongside the app it forces fastapi down to an old version (or, with pip,
+# fails to resolve at all). Install it as an isolated tool: pipx install semgrep.
+analysis = [
     "ruff>=0.16.9",
     "mypy>=2.3.1",
+    "bandit",
+    "pip-audit",
+]
+dev = [
+    "code-review-agent[analysis]",
+    "pytest",
     "pre-commit",
 ]
+
+[tool.setuptools.package-data]
+"reviewer.analysis" = ["rules/*.yml"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Deliberately broken code for the analysers, and third-party code in the golden set.
+extend-exclude = ["tests/fixtures", "data"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
@@ -35,7 +49,14 @@ select = ["E", "F", "I", "B", "UP"]
 strict = true
 python_version = "3.12"
 files = ["src", "tests"]
+exclude = ["^tests/fixtures/"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+# Slow or external tests are opt-in: pytest -m docker, pytest -m network.
+addopts = "-m 'not docker and not network'"
+markers = [
+    "docker: needs a Docker daemon; builds the reviewer-analysers image if missing",
+    "network: talks to external services such as the vulnerability database",
+]
