@@ -64,6 +64,13 @@ jobs:
       - name: Install project with dev dependencies
         run: pip install -e ".[dev]"
 
+      # Not a project dependency: semgrep pins its own dependencies exactly, which
+      # conflicts with the app's (see pyproject.toml). Install it as an isolated tool.
+      - name: Install semgrep
+        run: |
+          pipx install semgrep
+          semgrep --version
+
       - name: Run pytest
         run: pytest
 
