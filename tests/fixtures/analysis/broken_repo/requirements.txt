@@ -1,0 +1,3 @@
+# jinja2 2.4.1 has known vulnerabilities; the unpinned line cannot be audited.
+jinja2==2.4.1
+requests>=2.0
