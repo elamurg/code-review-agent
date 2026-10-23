@@ -1,0 +1,18 @@
+# The sandbox image the analysers run in (see src/reviewer/analysis/sandbox.py).
+# Build: docker build -f Dockerfile.analysis -t reviewer-analysers:latest .
+#
+# It holds only the tools, never the app or any secrets. The container is started with
+# no network, a read-only filesystem and the host user's ids, so nothing here needs root.
+FROM python:3.12-slim
+
+RUN pip install --no-cache-dir \
+    "ruff>=0.16.9" \
+    "mypy>=2.3.1" \
+    bandit \
+    semgrep \
+    pip-audit
+
+COPY src/reviewer/analysis/rules/semgrep.yml /opt/reviewer/semgrep.yml
+
+WORKDIR /src
+USER 65534:65534
