@@ -1,0 +1,583 @@
+diff --git a/changelog/4569.bugfix.rst b/changelog/4569.bugfix.rst
+new file mode 100644
+index 00000000000..b8c83e4d7e7
+--- /dev/null
++++ b/changelog/4569.bugfix.rst
+@@ -0,0 +1 @@
++``-k`` no longer matches attributes that end up in a test function's ``__dict__`` without being meant as keywords, such as pytest's own ``pytestmark`` storage and the bookkeeping left behind by :func:`functools.wraps` and :func:`functools.lru_cache`.
+diff --git a/changelog/4569.doc.rst b/changelog/4569.doc.rst
+new file mode 100644
+index 00000000000..6d3cc05a722
+--- /dev/null
++++ b/changelog/4569.doc.rst
+@@ -0,0 +1 @@
++The documentation of :option:`-k` now lists what a test's keywords actually are, including marker names, and says how ``-k`` differs from :option:`-m`. The examples that looked up a marker now use :meth:`Node.get_closest_marker <_pytest.nodes.Node.get_closest_marker>` instead of ``item.keywords``.
+diff --git a/changelog/4569.improvement.rst b/changelog/4569.improvement.rst
+new file mode 100644
+index 00000000000..c4bff2f36d3
+--- /dev/null
++++ b/changelog/4569.improvement.rst
+@@ -0,0 +1 @@
++:meth:`Node.add_marker <_pytest.nodes.Node.add_marker>` now stores a :class:`~pytest.Mark` in ``node.keywords``, matching what marks applied during collection store. Previously it stored a :class:`~pytest.MarkDecorator`.
+diff --git a/doc/en/example/markers.rst b/doc/en/example/markers.rst
+index c8e4172a696..5b5d3b88a29 100644
+--- a/doc/en/example/markers.rst
++++ b/doc/en/example/markers.rst
+@@ -162,15 +162,24 @@ Or select multiple nodes:
+     when running pytest with the ``-rf`` option.  You can also
+     construct Node IDs from the output of ``pytest --collect-only``.
+ 
+-Using ``-k expr`` to select tests based on their name
++Using ``-k expr`` to select tests by keyword
+ -------------------------------------------------------
+ 
+ .. versionadded:: 2.0/2.3.4
+ 
+ You can use the :option:`-k` command line option to specify an expression
+-which implements a substring match on the test names instead of the
+-exact match on markers that :option:`-m` provides.  This makes it easy to
+-select tests based on their names:
++which implements a substring match on the test's *keywords*, instead of the
++exact match on markers that :option:`-m` provides.
++
++The keywords of a test are its own name, the names of the test's parents
++(usually the name of the file and class it is in), the names of the markers
++applied to it or to its parents, attributes set on the test function, and any
++:attr:`extra keywords <_pytest.nodes.Node.extra_keyword_matches>` explicitly
++added to it or to its parents.
++
++Because marker names are keywords, ``-k http`` below selects tests marked
++``@pytest.mark.http`` just as well as tests merely named ``test_send_http``.
++Use :option:`-m` when you want markers and nothing else.
+ 
+ .. versionchanged:: 5.4
+ 
+@@ -225,11 +234,6 @@ Or to select "http" and "quick" tests:
+ You can use ``and``, ``or``, ``not`` and parentheses.
+ 
+ 
+-In addition to the test's name, :option:`-k` also matches the names of the test's parents (usually, the name of the file and class it's in),
+-attributes set on the test function, markers applied to it or its parents and any :attr:`extra keywords <_pytest.nodes.Node.extra_keyword_matches>`
+-explicitly added to it or its parents.
+-
+-
+ Registering markers
+ -------------------------------------
+ 
+diff --git a/doc/en/example/simple.rst b/doc/en/example/simple.rst
+index dff53488c88..090a81575fa 100644
+--- a/doc/en/example/simple.rst
++++ b/doc/en/example/simple.rst
+@@ -274,7 +274,7 @@ line option to control skipping of ``pytest.mark.slow`` marked tests:
+             return
+         skip_slow = pytest.mark.skip(reason="need --runslow option to run")
+         for item in items:
+-            if "slow" in item.keywords:
++            if item.get_closest_marker("slow"):
+                 item.add_marker(skip_slow)
+ 
+ We can now write a test module like this:
+@@ -560,7 +560,7 @@ an ``incremental`` marker which is to be used on classes:
+ 
+ 
+     def pytest_runtest_makereport(item, call):
+-        if "incremental" in item.keywords:
++        if item.get_closest_marker("incremental"):
+             # incremental marker is used
+             if call.excinfo is not None:
+                 # the test has failed
+@@ -581,7 +581,7 @@ an ``incremental`` marker which is to be used on classes:
+ 
+ 
+     def pytest_runtest_setup(item):
+-        if "incremental" in item.keywords:
++        if item.get_closest_marker("incremental"):
+             # retrieve the class name of the test
+             cls_name = str(item.cls)
+             # check if a previous test has failed for this class
+diff --git a/doc/en/how-to/usage.rst b/doc/en/how-to/usage.rst
+index 35b07bfe8c1..d891ce39b5e 100644
+--- a/doc/en/how-to/usage.rst
++++ b/doc/en/how-to/usage.rst
+@@ -38,11 +38,16 @@ Pytest supports several ways to run and select tests from the command-line or fr
+ 
+     pytest -k 'MyClass and not method'
+ 
+-This will run tests which contain names that match the given *string expression* (case-insensitive),
+-which can include Python operators that use filenames, class names and function names as variables.
++This will run tests whose *keywords* match the given expression (case-insensitive).
+ The example above will run ``TestMyClass.test_something``  but not ``TestMyClass.test_method_simple``.
+ Use ``""`` instead of ``''`` in expression when running this on Windows
+ 
++The keywords of a test are its own name, the names of the file, class and directories it is in,
++the names of the markers applied to it or to its parents, and attributes assigned directly to the
++test function. Each name in the expression is matched as a *substring* of any of them, so
++``-k slow`` selects both tests marked ``@pytest.mark.slow`` and tests merely named
++``test_slow_path``. Use :option:`-m` to match markers and nothing else.
++
+ .. _nodeids:
+ 
+ **Run tests by collection arguments**
+diff --git a/doc/en/reference/reference.rst b/doc/en/reference/reference.rst
+index 41dd956842f..19a942e5451 100644
+--- a/doc/en/reference/reference.rst
++++ b/doc/en/reference/reference.rst
+@@ -2867,17 +2867,27 @@ Test Selection
+ 
+ .. option:: -k EXPRESSION
+ 
+-    Only run tests which match the given substring expression.
+-    An expression is a Python evaluable expression where all names are substring-matched against test names and their parent classes.
++    Only run tests which match the given keyword expression.
++    An expression is made of names combined with ``and``, ``or``, ``not`` and parentheses.
++    Each name is matched case-insensitively as a substring of any of the test's keywords.
+ 
+     Examples::
+ 
+-        pytest -k "test_method or test_other"  # matches names containing 'test_method' OR 'test_other'
+-        pytest -k "not test_method"            # matches names NOT containing 'test_method'
++        pytest -k "test_method or test_other"  # matches keywords containing 'test_method' OR 'test_other'
++        pytest -k "not test_method"            # matches keywords NOT containing 'test_method'
+         pytest -k "not test_method and not test_other"  # excludes both
+ 
+-    The matching is case-insensitive.
+-    Keywords are also matched to classes and functions containing extra names in their ``extra_keyword_matches`` set.
++    The keywords of a test are:
++
++    * its own name, including any parametrization id;
++    * the names of its parent class, module and directories;
++    * the names of the markers applied to it or to any of its parents;
++    * attributes assigned directly to the test function, as in the legacy ``test_func.slow = True`` style;
++    * any names added to the :attr:`~_pytest.nodes.Node.extra_keyword_matches` set of it or of a parent.
++
++    Because marker names are keywords, ``-k slow`` selects both tests marked ``@pytest.mark.slow``
++    and tests whose name merely contains ``slow``.
++    Use :option:`-m` to match markers and nothing else.
+ 
+     See :ref:`select-tests` for more information and examples.
+ 
+@@ -2892,6 +2902,10 @@ Test Selection
+         pytest -m "not slow"            # run tests NOT marked slow
+         pytest -m "mark1 and not mark2" # run tests marked mark1 but not mark2
+ 
++    Marker names are matched exactly and case-sensitively, and only markers are matched:
++    unlike :option:`-k`, ``-m`` never matches test, class, module or directory names.
++    Marker keyword arguments can be matched as well, as in ``pytest -m "device(serial='123')"``.
++
+     See :ref:`mark` for more information on markers.
+ 
+ .. option:: --markers
+@@ -3438,21 +3452,21 @@ All the command-line flags can also be obtained by running ``pytest --help``::
+       file_or_dir
+ 
+     general:
+-      -k EXPRESSION         Only run tests which match the given substring
+-                            expression. An expression is a Python evaluable
+-                            expression where all names are substring-matched
+-                            against test names and their parent classes.
+-                            Example: -k 'test_method or test_other' matches all
+-                            test functions and classes whose name contains
++      -k EXPRESSION         Only run tests which match the given keyword
++                            expression. An expression is made of names combined
++                            with 'and', 'or', 'not' and parentheses; each name
++                            is matched case-insensitively as a substring of any
++                            of the test's keywords. Example: -k 'test_method or
++                            test_other' matches all tests whose keywords contain
+                             'test_method' or 'test_other', while -k 'not
+-                            test_method' matches those that don't contain
+-                            'test_method' in their names. -k 'not test_method
+-                            and not test_other' will eliminate the matches.
+-                            Additionally keywords are matched to classes and
+-                            functions containing extra names in their
+-                            'extra_keyword_matches' set, as well as functions
+-                            which have names assigned directly to them. The
+-                            matching is case-insensitive.
++                            test_method' matches those that do not. The keywords
++                            of a test are its own name including any
++                            parametrization id, the names of its parent class,
++                            module and directories, the names of the markers
++                            applied to it or to its parents, attributes assigned
++                            directly to the test function, and any names in an
++                            'extra_keyword_matches' set. Unlike -m, -k matches
++                            substrings and cannot match marker arguments.
+       -m MARKEXPR           Only run tests matching given mark expression. For
+                             example: -m 'mark1 and not mark2'.
+       --markers             show markers (builtin, plugin and per-project ones).
+diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py
+index 05537ec01b2..abb9f751512 100644
+--- a/src/_pytest/fixtures.py
++++ b/src/_pytest/fixtures.py
+@@ -618,7 +618,7 @@ def path(self) -> Path:
+ 
+     @property
+     def keywords(self) -> MutableMapping[str, Any]:
+-        """Keywords/markers dictionary for the underlying node."""
++        """The :attr:`~_pytest.nodes.Node.keywords` of the underlying node."""
+         node: nodes.Node = self.node
+         return node.keywords
+ 
+@@ -636,8 +636,8 @@ def addfinalizer(self, finalizer: Callable[[], object]) -> None:
+     def applymarker(self, marker: str | MarkDecorator) -> None:
+         """Apply a marker to a single test function invocation.
+ 
+-        This method is useful if you don't want to have a keyword/marker
+-        on all function invocations.
++        This method is useful if you don't want to have the marker on all
++        function invocations.
+ 
+         :param marker:
+             An object created by a call to ``pytest.mark.NAME(...)``.
+diff --git a/src/_pytest/mark/__init__.py b/src/_pytest/mark/__init__.py
+index 73354506df3..9d308c910c8 100644
+--- a/src/_pytest/mark/__init__.py
++++ b/src/_pytest/mark/__init__.py
+@@ -94,18 +94,18 @@ def pytest_addoption(parser: Parser) -> None:
+         dest="keyword",
+         default="",
+         metavar="EXPRESSION",
+-        help="Only run tests which match the given substring expression. "
+-        "An expression is a Python evaluable expression "
+-        "where all names are substring-matched against test names "
+-        "and their parent classes. Example: -k 'test_method or test_"
+-        "other' matches all test functions and classes whose name "
+-        "contains 'test_method' or 'test_other', while -k 'not test_method' "
+-        "matches those that don't contain 'test_method' in their names. "
+-        "-k 'not test_method and not test_other' will eliminate the matches. "
+-        "Additionally keywords are matched to classes and functions "
+-        "containing extra names in their 'extra_keyword_matches' set, "
+-        "as well as functions which have names assigned directly to them. "
+-        "The matching is case-insensitive.",
++        help="Only run tests which match the given keyword expression. "
++        "An expression is made of names combined with 'and', 'or', 'not' "
++        "and parentheses; each name is matched case-insensitively as a "
++        "substring of any of the test's keywords. Example: -k 'test_method "
++        "or test_other' matches all tests whose keywords contain "
++        "'test_method' or 'test_other', while -k 'not test_method' matches "
++        "those that do not. The keywords of a test are its own name "
++        "including any parametrization id, the names of its parent class, "
++        "module and directories, the names of the markers applied to it or "
++        "to its parents, attributes assigned directly to the test function, "
++        "and any names in an 'extra_keyword_matches' set. Unlike -m, -k "
++        "matches substrings and cannot match marker arguments.",
+     )
+ 
+     group._addoption(  # private to use reserved lower-case short option
+@@ -150,19 +150,33 @@ def pytest_cmdline_main(config: Config) -> int | ExitCode | None:
+     return None
+ 
+ 
++#: Attributes which are never meaningful as keywords, but do end up in the
++#: ``__dict__`` of a test function: pytest's own mark storage, and the
++#: bookkeeping decorators leave behind (``functools.wraps`` copies ``__wrapped__``
++#: and friends, ``functools.lru_cache`` adds ``cache_parameters``, ...).
++IGNORED_FUNCTION_ATTRIBUTES = frozenset({"pytestmark", "cache_parameters"})
++
++
++def _is_matchable_function_attribute(name: str) -> bool:
++    """Whether a test function attribute may be matched by ``-k``."""
++    return not name.startswith("_") and name not in IGNORED_FUNCTION_ATTRIBUTES
++
++
+ @dataclasses.dataclass
+ class KeywordMatcher:
+-    """A matcher for keywords.
++    """A matcher for keywords, used by ``-k``.
+ 
+-    Given a list of names, matches any substring of one of these names. The
++    Given a set of names, matches any substring of one of these names. The
+     string inclusion check is case-insensitive.
+ 
+-    Will match on the name of colitem, including the names of its parents.
+-    Only matches names of items which are either a :class:`Class` or a
+-    :class:`Function`.
++    The names are collected in :meth:`from_item` from the item and its
++    parents: their node names, the names of the markers in scope, the
++    attributes assigned to the test function, and the
++    :attr:`~_pytest.nodes.Node.extra_keyword_matches` sets.
+ 
+-    Additionally, matches on names in the 'extra_keyword_matches' set of
+-    any item, as well as names directly assigned to test functions.
++    Note that these names are collected independently of
++    :attr:`Node.keywords <_pytest.nodes.Node.keywords>`; writing into that
++    mapping does not affect ``-k``.
+     """
+ 
+     __slots__ = ("_names",)
+@@ -190,10 +204,16 @@ def from_item(cls, item: Item) -> KeywordMatcher:
+         # Add the names added as extra keywords to current or parent items.
+         mapped_names.update(item.listextrakeywords())
+ 
+-        # Add the names attached to the current function through direct assignment.
++        # Add the names attached to the current function through direct
++        # assignment, ignoring the attributes that merely happen to live in the
++        # function's __dict__ without anyone meaning them as keywords.
+         function_obj = getattr(item, "function", None)
+         if function_obj:
+-            mapped_names.update(function_obj.__dict__)
++            mapped_names.update(
++                name
++                for name in function_obj.__dict__
++                if _is_matchable_function_attribute(name)
++            )
+ 
+         # Add the markers to the keywords as we no longer handle them correctly.
+         mapped_names.update(mark.name for mark in item.iter_markers())
+diff --git a/src/_pytest/nodes.py b/src/_pytest/nodes.py
+index 76d480348de..2b510907122 100644
+--- a/src/_pytest/nodes.py
++++ b/src/_pytest/nodes.py
+@@ -185,13 +185,21 @@ def __init__(
+         self.path: pathlib.Path = path
+ 
+         # The explicit annotation is to avoid publicly exposing NodeKeywords.
+-        #: Keywords/markers collected from all scopes.
++        #: Mapping of the names collected for this node and its parents: the
++        #: node names themselves, the names of the markers applied to them
++        #: (mapping to the :class:`~pytest.Mark`), and, for a test function,
++        #: its attributes and parametrization id.
++        #:
++        #: Mostly useful for ``"markname" in item.keywords`` checks. Note that
++        #: this mapping is not what ``-k`` matches against, so writing to it
++        #: does not affect test selection, and that it is unrelated to
++        #: :attr:`extra_keyword_matches`.
+         self.keywords: MutableMapping[str, Any] = NodeKeywords(self)
+ 
+         #: The marker objects belonging to this node.
+         self.own_markers: list[Mark] = []
+ 
+-        #: Allow adding of extra keywords to use for matching.
++        #: Extra names for ``-k`` to match this node and its children on.
+         self.extra_keyword_matches: set[str] = set()
+ 
+         if nodeid is not None:
+@@ -335,7 +343,7 @@ def add_marker(self, marker: str | MarkDecorator, append: bool = True) -> None:
+             marker_ = getattr(MARK_GEN, marker)
+         else:
+             raise ValueError("is not a string or pytest.mark.* Marker")
+-        self.keywords[marker_.name] = marker_
++        self.keywords[marker_.name] = marker_.mark
+         if append:
+             self.own_markers.append(marker_.mark)
+         else:
+diff --git a/src/_pytest/python.py b/src/_pytest/python.py
+index bc3d55243f7..792d0d5b4f3 100644
+--- a/src/_pytest/python.py
++++ b/src/_pytest/python.py
+@@ -1670,7 +1670,8 @@ class Function(PyobjMixin, nodes.Item):
+         If given, the object which will be called when the Function is invoked,
+         otherwise the callobj will be obtained from ``parent`` using ``originalname``.
+     :param keywords:
+-        Keywords bound to the function object for "-k" matching.
++        Extra entries for :attr:`~_pytest.nodes.Node.keywords`, taking
++        precedence over the function's attributes and markers.
+     :param session:
+         The pytest Session object.
+     :param fixtureinfo:
+diff --git a/src/_pytest/reports.py b/src/_pytest/reports.py
+index 35a212e8eab..a3a1a36425b 100644
+--- a/src/_pytest/reports.py
++++ b/src/_pytest/reports.py
+@@ -370,8 +370,9 @@ def __init__(
+         #: The line number is 0-based.
+         self.location: tuple[str, int | None, str] = location
+ 
+-        #: A name -> value dictionary containing all keywords and
+-        #: markers associated with a test invocation.
++        #: The names in :attr:`Node.keywords <_pytest.nodes.Node.keywords>`
++        #: of the item, each mapping to ``1``; the values of the node keywords
++        #: are not carried over.
+         self.keywords: Mapping[str, Any] = keywords
+ 
+         #: Test outcome, always one of "passed", "failed", "skipped".
+diff --git a/testing/test_collection.py b/testing/test_collection.py
+index 093162ddec4..f7cdc60a1c3 100644
+--- a/testing/test_collection.py
++++ b/testing/test_collection.py
+@@ -973,6 +973,16 @@ def test_method(self): pass
+         assert "bar" not in mod.keywords
+         assert "baz" not in mod.keywords
+ 
++    def test_added_marks_added_to_keywords(self, pytester: Pytester) -> None:
++        """Dynamically added marks land in keywords as Mark objects, same as
++        marks applied during collection (#4569)."""
++        item = pytester.getitem("def test_method(): pass", "test_method")
++        item.add_marker("foo")
++        item.add_marker(pytest.mark.bar("arg", kwarg=1))
++
++        assert item.keywords["foo"] == pytest.mark.foo.mark
++        assert item.keywords["bar"] == pytest.mark.bar("arg", kwarg=1).mark
++
+ 
+ class TestCollectDirectoryHook:
+     def test_custom_directory_example(self, pytester: Pytester) -> None:
+diff --git a/testing/test_mark.py b/testing/test_mark.py
+index 706ae8120fd..8a61f3c8c6e 100644
+--- a/testing/test_mark.py
++++ b/testing/test_mark.py
+@@ -1033,6 +1033,36 @@ def test_one():
+         _passed, _skipped, failed = reprec.countoutcomes()
+         assert failed == 1
+ 
++    @pytest.mark.parametrize("keyword", ["pytestmark", "wrapped", "cache_parameters"])
++    def test_no_match_on_ignored_function_attributes(
++        self, pytester: Pytester, keyword: str
++    ) -> None:
++        """`-k` ignores attributes that end up in a test function's __dict__
++        without being meant as keywords (#4569)."""
++        pytester.makepyfile(
++            """
++            import functools
++            import pytest
++
++            def deco(fn):
++                @functools.wraps(fn)
++                def wrapper(*args, **kwargs):
++                    return fn(*args, **kwargs)
++                return wrapper
++
++            @pytest.mark.some_mark
++            def test_marked(): pass
++
++            @deco
++            def test_decorated(): pass
++
++            @functools.lru_cache
++            def test_cached(): pass
++            """
++        )
++        result = pytester.runpytest("-k", keyword)
++        result.assert_outcomes(deselected=3)
++
+     @pytest.mark.xfail
+     def test_keyword_extra_dash(self, pytester: Pytester) -> None:
+         p = pytester.makepyfile(
+@@ -1104,6 +1134,106 @@ def get_collected_names(*args: str) -> list[str]:
+         # do not collect anything based on names outside the collection tree
+         assert get_collected_names("-k", pytester._name) == []
+ 
++    def test_keyword_matches_marks_from_parents(self, pytester: Pytester) -> None:
++        """`-k` matches marker names from the module, class and base classes."""
++        pytester.makepyfile(
++            """
++            import pytest
++            pytestmark = pytest.mark.modmark
++
++            @pytest.mark.basemark
++            class Base:
++                def test_inherited(self): pass
++
++            @pytest.mark.classmark
++            class TestClass(Base):
++                def test_method(self): pass
++
++            def test_toplevel(): pass
++            """
++        )
++        for keyword, selected in [
++            ("modmark", 3),
++            ("classmark", 2),
++            ("basemark", 2),
++        ]:
++            result = pytester.runpytest("-k", keyword)
++            result.assert_outcomes(passed=selected, deselected=3 - selected)
++
++    def test_keyword_does_not_match_mark_arguments(self, pytester: Pytester) -> None:
++        """`-k` matches marker names, not what the marker was called with."""
++        pytester.makepyfile(
++            """
++            import pytest
++
++            @pytest.mark.mymark("someargument", somekwarg="anotherargument")
++            def test_one(): pass
++            """
++        )
++        for keyword in ["someargument", "anotherargument", "somekwarg"]:
++            result = pytester.runpytest("-k", keyword)
++            result.assert_outcomes(deselected=1)
++
++    def test_keyword_matches_dynamically_added_mark(self, pytester: Pytester) -> None:
++        """A mark added in a conftest `pytest_collection_modifyitems` is seen by
++        `-k`, because conftest hook implementations run before the ones of the
++        mark plugin doing the deselection."""
++        pytester.makeconftest(
++            """
++            def pytest_collection_modifyitems(items):
++                for item in items:
++                    if item.name == "test_one":
++                        item.add_marker("addedmark")
++            """
++        )
++        pytester.makepyfile(
++            """
++            def test_one(): pass
++            def test_two(): pass
++            """
++        )
++        result = pytester.runpytest("-k", "addedmark")
++        result.assert_outcomes(passed=1, deselected=1)
++
++    def test_keyword_matches_item_extra_keyword_matches(
++        self, pytester: Pytester
++    ) -> None:
++        """`extra_keyword_matches` is honoured on the item itself, not just on
++        a parent collector."""
++        pytester.makeconftest(
++            """
++            def pytest_collection_modifyitems(items):
++                for item in items:
++                    if item.name == "test_one":
++                        item.extra_keyword_matches.add("extrakeyword")
++            """
++        )
++        pytester.makepyfile(
++            """
++            def test_one(): pass
++            def test_two(): pass
++            """
++        )
++        result = pytester.runpytest("-k", "extrakeyword")
++        result.assert_outcomes(passed=1, deselected=1)
++
++    @pytest.mark.parametrize("option", ["-k", "-m"])
++    def test_writing_to_keywords_does_not_select(
++        self, pytester: Pytester, option: str
++    ) -> None:
++        """Writing into `item.keywords` does not make a test selectable: `-k`
++        collects its names separately, and `-m` only looks at markers."""
++        pytester.makeconftest(
++            """
++            def pytest_collection_modifyitems(items):
++                for item in items:
++                    item.keywords["setviakeywords"] = True
++            """
++        )
++        pytester.makepyfile("def test_one(): pass")
++        result = pytester.runpytest(option, "setviakeywords")
++        result.assert_outcomes(deselected=1)
++
+ 
+ class TestMarkDecorator:
+     @pytest.mark.parametrize(
+@@ -1263,12 +1393,16 @@ class TestBarClass(BaseTests):
+     deselected_tests = dlist[0].items
+     assert len(deselected_tests) == 1
+ 
+-    # todo: fixed
+-    # keywords smear - expected behaviour
+-    # reprec_keywords = pytester.inline_run("-k", "FOO")
+-    # passed_k, skipped_k, failed_k = reprec_keywords.countoutcomes()
+-    # assert passed_k == 2
+-    # assert skipped_k == failed_k == 0
++    # Marks used to smear onto the shared base class function object, so that
++    # -k FOO matched both subclasses; it no longer does.
++    reprec_keywords = pytester.inline_run("-k", "FOO")
++    passed_k, skipped_k, failed_k = reprec_keywords.countoutcomes()
++    assert passed_k == 1
++    assert skipped_k == failed_k == 0
++
++    # -m matches marker names exactly, so the case has to match too.
++    reprec_lower = pytester.inline_run("-m", "foo")
++    assert reprec_lower.countoutcomes() == [0, 0, 0]
+ 
+ 
+ def test_addmarker_order(pytester) -> None:

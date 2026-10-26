@@ -1,0 +1,63 @@
+diff --git a/tests/test_crawl.py b/tests/test_crawl.py
+index e4d86489270..07ce38147f6 100644
+--- a/tests/test_crawl.py
++++ b/tests/test_crawl.py
+@@ -27,6 +27,7 @@
+ )
+ from scrapy.utils.test import get_crawler
+ from tests import NON_EXISTING_RESOLVABLE
++from tests.mockserver.utils import _free_port
+ from tests.spiders import (
+     AsyncAwaitRequestInItemPipelineSpider,
+     AsyncDefAsyncioGenComplexSpider,
+@@ -205,7 +206,7 @@ async def test_retry_conn_failed(
+         crawler = get_crawler(SimpleSpider)
+         with caplog.at_level(logging.DEBUG):
+             await crawler.crawl_async(
+-                "http://localhost:65432/status?n=503", mockserver=mockserver
++                f"http://127.0.0.1:{_free_port()}/status?n=503", mockserver=mockserver
+             )
+         self._assert_retried(caplog.text)
+ 
+diff --git a/tests/test_downloader_handler_twisted_http11.py b/tests/test_downloader_handler_twisted_http11.py
+index 00598e642b3..c545fa584c0 100644
+--- a/tests/test_downloader_handler_twisted_http11.py
++++ b/tests/test_downloader_handler_twisted_http11.py
+@@ -52,6 +52,7 @@
+ from scrapy.utils.spider import DefaultSpider
+ from scrapy.utils.test import get_crawler
+ from tests import NON_EXISTING_RESOLVABLE
++from tests.mockserver.utils import _free_port
+ from tests.utils import ipv6_loopback_available
+ from tests.utils.bases.download_handlers_http import (
+     TestHttpBase,
+@@ -616,7 +617,7 @@ async def test_trailing_bytes(self) -> None:
+     @coroutine_test
+     async def test_proxy_connection_refused(self) -> None:
+         request = Request(
+-            "https://example.com", meta={"proxy": "http://127.0.0.1:65432"}
++            "https://example.com", meta={"proxy": f"http://127.0.0.1:{_free_port()}"}
+         )
+         async with _get_dh() as dh:
+             with pytest.raises(DownloadConnectionRefusedError):
+diff --git a/tests/utils/bases/download_handlers_http.py b/tests/utils/bases/download_handlers_http.py
+index 9d1a3dbbc87..45b263398da 100644
+--- a/tests/utils/bases/download_handlers_http.py
++++ b/tests/utils/bases/download_handlers_http.py
+@@ -55,6 +55,7 @@
+ from tests.mockserver.proxy_stalling import StallingProxy
+ from tests.mockserver.raw_http import RawHttpServer
+ from tests.mockserver.simple_https import SimpleMockServer
++from tests.mockserver.utils import _free_port
+ from tests.spiders import (
+     BytesReceivedCallbackSpider,
+     BytesReceivedErrbackSpider,
+@@ -1193,7 +1194,7 @@ async def test_download_unknown_h2_frame(self, mockserver: MockServer) -> None:
+     async def test_download_conn_failed(self) -> None:
+         # copy of TestCrawl.test_retry_conn_failed()
+         scheme = "https" if self.is_secure else "http"
+-        request = Request(f"{scheme}://localhost:65432/")
++        request = Request(f"{scheme}://127.0.0.1:{_free_port()}/")
+         async with self.get_dh() as download_handler:
+             with pytest.raises(DownloadConnectionRefusedError):
+                 await download_handler.download_request(request)

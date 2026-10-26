@@ -1,0 +1,44 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 6513de1c601..5641a8b42ff 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -23,6 +23,8 @@
+   `# fmt: skip` comment on the last line before a closing bracket (#5477)
+ - Prevent moving an encoding declaration (for example `# -*- coding: latin-1 -*-`) onto
+   the first two lines of a file (#5487)
++- Fix adding an extra trailing blank line inside a multi-line module docstring when its
++  last line is near the line length limit (#5494)
+ 
+ ### Preview style
+ 
+diff --git a/src/black/linegen.py b/src/black/linegen.py
+index d70876fbb04..731dff79b1c 100644
+--- a/src/black/linegen.py
++++ b/src/black/linegen.py
+@@ -572,7 +572,9 @@ def visit_STRING(self, leaf: Leaf) -> Iterator[Line]:
+                 # If docstring is one line, we don't put the closing quotes on a
+                 # separate line because it looks ugly (#3320).
+                 lines = docstring.splitlines()
+-                last_line_length = len(lines[-1]) if docstring else 0
++                last_line_length = (
++                    len(lines[-1]) if docstring and not docstring.endswith("\n") else 0
++                )
+ 
+                 # If adding closing quotes would cause the last line to exceed
+                 # the maximum line length, and the closing quote is not
+diff --git a/tests/test_black.py b/tests/test_black.py
+index 4c00a20d207..5570e8045ad 100644
+--- a/tests/test_black.py
++++ b/tests/test_black.py
+@@ -2634,6 +2634,11 @@ def test_docstring_still_splits_on_real_line_breaks(self) -> None:
+             assert value.count("\n") == 1, f"{newline!r}: {value!r}"
+             assert formatted == black.format_str(formatted, mode=black.FileMode())
+ 
++    def test_module_docstring_almost_at_line_limit(self) -> None:
++        source = '"""Module docstring.\n\n' + "." * 86 + "\n" + '    """\n'
++        expected = '"""Module docstring.\n\n' + "." * 86 + "\n" + '"""\n'
++        assert black.format_str(source, mode=black.FileMode()) == expected
++
+     def test_newline_type_detection(self) -> None:
+         mode = Mode()
+         newline_types = ["A\n", "A\r\n", "A\r"]

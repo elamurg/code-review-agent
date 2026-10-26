@@ -1,0 +1,98 @@
+{
+  "repo": "pallets/click",
+  "number": 3695,
+  "title": "Mark clearly functions private status. Deprecated Python 2 utilities.",
+  "url": "https://github.com/pallets/click/pull/3695",
+  "base_sha": "b551fe85714c906565303fae98136d7c72b252ea",
+  "head_sha": "7a0a3447f6ddd2c15438c5d098e289323f9f9556",
+  "comments": [
+    {
+      "id": 3603276582,
+      "author": "kdeldycke",
+      "path": "src/click/__init__.py",
+      "line": 128,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603276582",
+      "body": "This warning is not triggered if someone import `get_binary_stream` from `click.utils.get_binary_stream`.",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "The deprecation is incomplete: importing the name from click.utils bypasses the warning, so users get no notice before removal."
+    },
+    {
+      "id": 3603340320,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 682,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603340320",
+      "body": "The deprecation warning is too verbose, just align it to the other: `XXX is deprecated and will be removed in Click 9.0.` is good enough! :)",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Warning message is too wordy: wording preference, behaviour is correct."
+    },
+    {
+      "id": 3603351126,
+      "author": "kdeldycke",
+      "path": "docs/handling-files.md",
+      "line": 92,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603351126",
+      "body": "Maybe you can rephrase this to eliminate the reference to the now private `_LazyFile` altogether.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation rephrasing request."
+    },
+    {
+      "id": 3603362379,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 38,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603362379",
+      "body": "Small nitpick: first line should be put right after the triple-quote. Like so:\n```python\n    \"\"\"Wraps a function so that it swallows exceptions.\n\n    :meta private:\n    \"\"\"\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring layout nit (first line placement)."
+    },
+    {
+      "id": 3603368289,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 118,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603368289",
+      "body": "Same issue as above: should be move right after the `\"\"\"`.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring layout nit, same as the previous comment."
+    },
+    {
+      "id": 3603376994,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 355,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603376994",
+      "body": "Replace `.. deprecated:: 8.5` by `.. deprecated:: 8.5.0`.\n\nA nitpick I also proposed to fix in #3697.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Version number format in a deprecated directive; documentation nit."
+    },
+    {
+      "id": 3603377768,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 376,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603377768",
+      "body": "Replace `.. deprecated:: 8.5` by `.. deprecated:: 8.5.0`.\n\nA nitpick I also proposed to fix in #3697.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Version number format in a deprecated directive; documentation nit."
+    },
+    {
+      "id": 3603387371,
+      "author": "kdeldycke",
+      "path": "src/click/utils.py",
+      "line": 383,
+      "url": "https://github.com/pallets/click/pull/3695#discussion_r3603387371",
+      "body": "Shouldn't we move that directive at the end of the docstring for consistency like the others?",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring directive placement for consistency; documentation nit."
+    }
+  ]
+}

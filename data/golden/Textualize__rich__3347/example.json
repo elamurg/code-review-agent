@@ -1,0 +1,21 @@
+{
+  "repo": "Textualize/rich",
+  "number": 3347,
+  "title": "highlight_regex in rich.text.Text Now Expects a Compiled Regular Expression (re.compile) Has Been Passed",
+  "url": "https://github.com/Textualize/rich/pull/3347",
+  "base_sha": "68ead314716f08ffad7458e73b08bdfe4a1c0038",
+  "head_sha": "65fcf281283244b8ee4ded75a4b60c7eb316da6e",
+  "comments": [
+    {
+      "id": 1781267118,
+      "author": "willmcgugan",
+      "path": "rich/text.py",
+      "line": 603,
+      "url": "https://github.com/Textualize/rich/pull/3347#discussion_r1781267118",
+      "body": "```suggestion\r\n            re_highlight (Union[re.Pattern, str]): A regular expression object or string.\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring wording suggestion."
+    }
+  ]
+}

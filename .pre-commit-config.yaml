@@ -1,3 +1,7 @@
+# The golden set stores third-party diffs and files byte for byte. The whitespace hooks
+# would "fix" them and corrupt the diffs, so it is excluded from every hook.
+exclude: ^data/golden/
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

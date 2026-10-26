@@ -1,0 +1,10 @@
+diff --git a/aiohttp/__init__.py b/aiohttp/__init__.py
+index a560b2e2d32..067647ac322 100644
+--- a/aiohttp/__init__.py
++++ b/aiohttp/__init__.py
+@@ -1,4 +1,4 @@
+-__version__ = "3.14.5"
++__version__ = "3.14.6.dev0"
+ 
+ from typing import TYPE_CHECKING
+ 

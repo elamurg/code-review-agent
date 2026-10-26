@@ -1,0 +1,89 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 1bb90aae3d3..a8a62f7310f 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -36,6 +36,9 @@
+ 
+ <!-- Changes to the parser or to version autodetection -->
+ 
++- Fix parsing of unpacking in a generator expression passed as the only argument to a
++  call, such as `sum(*x for x in y)` (PEP 798) (#5568)
++
+ ### Performance
+ 
+ <!-- Changes that improve Black's performance. -->
+diff --git a/src/black/__init__.py b/src/black/__init__.py
+index 847c4d2789a..ed09934b064 100644
+--- a/src/black/__init__.py
++++ b/src/black/__init__.py
+@@ -1737,7 +1737,12 @@ def get_features_used(
+ 
+ 
+ def is_unpacking_comprehension(node: LN) -> bool:
+-    if node.type not in {syms.listmaker, syms.testlist_gexp, syms.dictsetmaker}:
++    if node.type not in {
++        syms.listmaker,
++        syms.testlist_gexp,
++        syms.dictsetmaker,
++        syms.argument,
++    }:
+         return False
+ 
+     if not any(
+@@ -1746,7 +1751,7 @@ def is_unpacking_comprehension(node: LN) -> bool:
+         return False
+ 
+     first_child = node.children[0]
+-    return first_child.type == syms.star_expr or first_child.type == token.DOUBLESTAR
++    return first_child.type in {syms.star_expr, token.STAR, token.DOUBLESTAR}
+ 
+ 
+ def _contains_asexpr(node: Node | Leaf) -> bool:
+diff --git a/src/blib2to3/Grammar.txt b/src/blib2to3/Grammar.txt
+index 2bd54bdc27b..b908d4f28e3 100644
+--- a/src/blib2to3/Grammar.txt
++++ b/src/blib2to3/Grammar.txt
+@@ -195,7 +195,7 @@ argument: ( test [comp_for] |
+             test 'as' test |
+             test '=' asexpr_test |
+            '**' test |
+-            '*' test )
++            '*' test [comp_for] )
+ 
+ comp_iter: comp_for | comp_if
+ comp_for: [ASYNC] 'for' exprlist 'in' or_test [comp_iter]
+diff --git a/tests/data/cases/python315.py b/tests/data/cases/python315.py
+index 127eca2efb9..5d28fb763a0 100644
+--- a/tests/data/cases/python315.py
++++ b/tests/data/cases/python315.py
+@@ -19,6 +19,7 @@ def eager():
+ generator = (*item for item in items)
+ combined = {*members for members in groups}
+ merged = {**mapping for mapping in mappings}
++total = sum(*item for item in items)
+ 
+ 
+ async def collect():
+@@ -46,6 +47,7 @@ def eager():
+ generator = (*item for item in items)
+ combined = {*members for members in groups}
+ merged = {**mapping for mapping in mappings}
++total = sum(*item for item in items)
+ 
+ 
+ async def collect():
+diff --git a/tests/test_black.py b/tests/test_black.py
+index b3b6f2f8110..47c581ffbad 100644
+--- a/tests/test_black.py
++++ b/tests/test_black.py
+@@ -379,6 +379,10 @@ def test_python315_version_detection(self) -> None:
+         )
+         versions = black.detect_target_versions(root)
+         self.assertIn(black.TargetVersion.PY315, versions)
++        self.assertIn(
++            black.Feature.UNPACKING_IN_COMPREHENSIONS,
++            black.get_features_used(black.lib2to3_parse("f(*x for x in y)\n")),
++        )
+ 
+     def test_expression_ff(self) -> None:
+         source, expected = read_data("cases", "expression.py")

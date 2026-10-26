@@ -1,0 +1,21 @@
+{
+  "repo": "scrapy/scrapy",
+  "number": 8272,
+  "title": "Further engine refactoring ",
+  "url": "https://github.com/scrapy/scrapy/pull/8272",
+  "base_sha": "eba114d98ecd3986f23af6facb524fc4ac4d8f71",
+  "head_sha": "9b1efef28bfbdbdad61106c0ad2b703e22b60e89",
+  "comments": [
+    {
+      "id": 4174137013,
+      "author": "AdrianAtZyte",
+      "path": "scrapy/core/engine.py",
+      "line": 680,
+      "url": "https://github.com/scrapy/scrapy/pull/8272#discussion_r4174137013",
+      "body": "I wonder if we could/should merge the 3 new paragraphs in a single versionchanged after the \"Raises\" paragraph, shorted than the combination of the current 3 paragraphs. ",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring structure suggestion."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+diff --git a/changelog.d/1636.change.md b/changelog.d/1636.change.md
+new file mode 100644
+index 000000000..f41d63260
+--- /dev/null
++++ b/changelog.d/1636.change.md
+@@ -0,0 +1 @@
++Improved `attrs.astuple()` performance for atomic values nested in sequences by avoiding unnecessary attrs-class detection.
+diff --git a/src/attr/_funcs.py b/src/attr/_funcs.py
+index d213efc22..c88c175a1 100644
+--- a/src/attr/_funcs.py
++++ b/src/attr/_funcs.py
+@@ -301,7 +301,7 @@ def astuple(
+                             tuple_factory=tuple_factory,
+                             retain_collection_types=retain,
+                         )
+-                        if has(j.__class__)
++                        if type(j) not in _ATOMIC_TYPES and has(j.__class__)
+                         else j
+                     )
+                     for j in v

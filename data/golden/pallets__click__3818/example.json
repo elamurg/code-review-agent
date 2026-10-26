@@ -1,0 +1,32 @@
+{
+  "repo": "pallets/click",
+  "number": 3818,
+  "title": "Fix race condition on `KeyboardInterrupt` in `Command.main()`",
+  "url": "https://github.com/pallets/click/pull/3818",
+  "base_sha": "cbb5b2df1ee3492115f8c2ee5cbb09e2271fc714",
+  "head_sha": "de7ad0c7f7263352ba0b1c0a4e0084c991eabb7f",
+  "comments": [
+    {
+      "id": 3896004144,
+      "author": "davidism",
+      "path": "src/click/core.py",
+      "line": 1560,
+      "url": "https://github.com/pallets/click/pull/3818#discussion_r3896004144",
+      "body": "I'm not sure if we'd ever expect to do anything else with `report` besides show a message on stderr. Maybe we can do `exit_message: str | None = None` and `if exit_message is not None: echo(exit_message)`",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Design simplification (a message string instead of a callable). The code is correct either way; this is preference."
+    },
+    {
+      "id": 3896043269,
+      "author": "davidism",
+      "path": "tests/test_abort_interrupt.py",
+      "line": 191,
+      "url": "https://github.com/pallets/click/pull/3818#discussion_r3896043269",
+      "body": "I think this is a bit too much and can be left out. It also relies on timeouts, meaning it could be flaky in CI.",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "The new test drives real signals with timeouts, which makes it flaky in CI: a test reliability problem a reviewer should catch."
+    }
+  ]
+}

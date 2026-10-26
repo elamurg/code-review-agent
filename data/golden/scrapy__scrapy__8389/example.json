@@ -1,0 +1,9 @@
+{
+  "repo": "scrapy/scrapy",
+  "number": 8389,
+  "title": "Use a proper way to test a non-listening port.",
+  "url": "https://github.com/scrapy/scrapy/pull/8389",
+  "base_sha": "b8b81a262d02fd58d5d268971770863807c5f231",
+  "head_sha": "812883238565349453f66cab784c19a9f6986e02",
+  "comments": []
+}

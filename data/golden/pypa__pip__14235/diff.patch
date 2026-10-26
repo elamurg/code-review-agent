@@ -1,0 +1,89 @@
+diff --git a/news/14235.feature.rst b/news/14235.feature.rst
+new file mode 100644
+index 0000000000..c19453cf88
+--- /dev/null
++++ b/news/14235.feature.rst
+@@ -0,0 +1 @@
++Speed up installing a wheel with console scripts by not resolving every ``PATH`` entry.
+diff --git a/src/pip/_internal/operations/install/wheel.py b/src/pip/_internal/operations/install/wheel.py
+index c026005cb2..43caf53c3f 100644
+--- a/src/pip/_internal/operations/install/wheel.py
++++ b/src/pip/_internal/operations/install/wheel.py
+@@ -133,18 +133,26 @@ def message_about_scripts_not_on_PATH(scripts: Sequence[str]) -> str | None:
+         script_name = dest_path.name
+         grouped_by_dir[parent_dir].add(script_name)
+ 
+-    # We don't want to warn for directories that are on PATH.
+-    not_warn_dirs = [
+-        Path(i).resolve() for i in os.environ.get("PATH", "").split(os.pathsep)
+-    ]
+     # If an executable sits with sys.executable, we don't warn for it.
+     #     This covers the case of venv invocations without activating the venv.
+-    not_warn_dirs.append(Path(sys.executable).parent.resolve())
++    executable_dir = Path(sys.executable).parent.resolve()
++    path_entries = os.environ.get("PATH", "").split(os.pathsep)
++
++    # We don't want to warn for directories that are on PATH.
+     warn_for: dict[Path, set[str]] = {
+         parent_dir: scripts
+         for parent_dir, scripts in grouped_by_dir.items()
+-        if parent_dir not in not_warn_dirs
++        if parent_dir != executable_dir and str(parent_dir) not in path_entries
+     }
++
++    # Resolving PATH entries hits the filesystem, so only do it for what's left.
++    if warn_for:
++        not_warn_dirs = {Path(i).resolve() for i in path_entries}
++        warn_for = {
++            parent_dir: scripts
++            for parent_dir, scripts in warn_for.items()
++            if parent_dir not in not_warn_dirs
++        }
+     if not warn_for:
+         return None
+ 
+@@ -173,9 +181,7 @@ def message_about_scripts_not_on_PATH(scripts: Sequence[str]) -> str | None:
+         msg_lines.append(last_line_fmt.format("these directories"))
+ 
+     # Add a note if any directory starts with ~
+-    warn_for_tilde = any(
+-        i[0] == "~" for i in os.environ.get("PATH", "").split(os.pathsep) if i
+-    )
++    warn_for_tilde = any(i[0] == "~" for i in path_entries if i)
+     if warn_for_tilde:
+         tilde_warning_msg = (
+             "NOTE: The current PATH contains path(s) starting with `~`, "
+diff --git a/tests/unit/test_wheel.py b/tests/unit/test_wheel.py
+index 61e9ac7964..5f9664553d 100644
+--- a/tests/unit/test_wheel.py
++++ b/tests/unit/test_wheel.py
+@@ -569,6 +569,29 @@ def test_trailing_ossep_removal(self) -> None:
+         )
+         assert retval is None
+ 
++    def test_PATH_entries_are_not_resolved_when_a_string_match_settles_it(
++        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
++    ) -> None:
++        tmp_path = tmp_path.resolve()
++        scripts_dir = tmp_path / "bin"
++        unrelated_entry = tmp_path / "elsewhere"
++
++        resolved: list[str] = []
++        unpatched_resolve = Path.resolve
++
++        def recording_resolve(self: Path, strict: bool = False) -> Path:
++            resolved.append(str(self))
++            return unpatched_resolve(self, strict)
++
++        monkeypatch.setattr(Path, "resolve", recording_resolve)
++        retval = self._template(
++            paths=[str(scripts_dir), str(unrelated_entry)],
++            scripts=[str(scripts_dir / "foo")],
++        )
++
++        assert retval is None
++        assert str(unrelated_entry) not in resolved
++
+     def test_missing_PATH_env_treated_as_empty_PATH_env(
+         self, monkeypatch: pytest.MonkeyPatch
+     ) -> None:

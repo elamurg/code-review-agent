@@ -1,0 +1,131 @@
+{
+  "repo": "pytest-dev/pytest",
+  "number": 15011,
+  "title": "Clarify the relation between marks and keywords",
+  "url": "https://github.com/pytest-dev/pytest/pull/15011",
+  "base_sha": "affb9c4cdc729da46c03b0de2ec17ab3e31c1e65",
+  "head_sha": "ead8f489fa0c88bc67c56c752eb2a0e447743165",
+  "comments": [
+    {
+      "id": 4005477827,
+      "author": "bluetech",
+      "path": "doc/en/example/markers.rst",
+      "line": 182,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005477827",
+      "body": "This paragraph is a little confusing since the example doesn't use `@pytest.mark.http`. I understand you intend to say \"if hypothetically a test were marked with `@pytest.mark.http` then it would also be selected` but it doesn't quite read this way.\n\nI think either omit the paragraph or integrate it into the example.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation clarity."
+    },
+    {
+      "id": 4005485661,
+      "author": "bluetech",
+      "path": "doc/en/example/markers.rst",
+      "line": 174,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005485661",
+      "body": "I figure the reason why this paragraph was previously at the end was a desire to not inundate the reader with details before giving the example. Which I kinda agree with, though both ways are OK.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation paragraph ordering; the reviewer says both ways are fine."
+    },
+    {
+      "id": 4005505176,
+      "author": "bluetech",
+      "path": "changelog/4569.doc.rst",
+      "line": 1,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005505176",
+      "body": "It would be nice to link to said documentation.\n\nDoes it refer to example/markers.rst? If so, it did explain what \"keywords\" are. So I think there first sentence here can be removed.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog wording and linking."
+    },
+    {
+      "id": 4005511109,
+      "author": "bluetech",
+      "path": "changelog/4569.bugfix.rst",
+      "line": 1,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005511109",
+      "body": "```suggestion\n:option:`-k` no longer matches attributes that end up in a test function's ``__dict__`` without being meant as keywords, such as pytest's own ``pytestmark`` attribute and the bookkeeping left behind by :func:`functools.wraps` and :func:`functools.lru_cache`.\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog wording suggestion."
+    },
+    {
+      "id": 4005566042,
+      "author": "bluetech",
+      "path": "doc/en/how-to/usage.rst",
+      "line": 45,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005566042",
+      "body": "usage.rst is one of the \"started\" documentation pages, so I think it would be nice to keep it relatively short. Maybe can replace this paragraph with a hyperlink to example/markers.rst in the above paragraph?",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation length and structure."
+    },
+    {
+      "id": 4005582896,
+      "author": "bluetech",
+      "path": "doc/en/reference/reference.rst",
+      "line": 2890,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005582896",
+      "body": "Would remove this paragraph from the reference documentation.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Reference documentation scope."
+    },
+    {
+      "id": 4005598532,
+      "author": "bluetech",
+      "path": "doc/en/reference/reference.rst",
+      "line": 2905,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005598532",
+      "body": "Would remove reference to `-k` here, and leave only reference information. There is already a link to the explanation page.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Reference documentation scope."
+    },
+    {
+      "id": 4005602488,
+      "author": "bluetech",
+      "path": "doc/en/reference/reference.rst",
+      "line": 2907,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005602488",
+      "body": "Would move the example to a line in `Examples` above.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation example placement."
+    },
+    {
+      "id": 4005634364,
+      "author": "bluetech",
+      "path": "src/_pytest/mark/__init__.py",
+      "line": 167,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005634364",
+      "body": "IMO the low level `KeywordMatcher` shouldn't refer to high level `-k` argument. Though maybe it makes things clearer.\n\nWould at least change to \"as used by `-k`\".",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring wording in a low-level class."
+    },
+    {
+      "id": 4005705466,
+      "author": "bluetech",
+      "path": "src/_pytest/fixtures.py",
+      "line": 640,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005705466",
+      "body": "(Preexisting) I wonder what \"function invocation\" refers to here? I can't make sense of what it's trying to say, maybe refers to parametrization?",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Question about pre-existing docstring wording."
+    },
+    {
+      "id": 4005738828,
+      "author": "bluetech",
+      "path": "src/_pytest/reports.py",
+      "line": 374,
+      "url": "https://github.com/pytest-dev/pytest/pull/15011#discussion_r4005738828",
+      "body": "If we document the `1` then it would be good to change the type annotation to `Literal[1]` to statically guarantee it.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Suggests tightening a type annotation to Literal[1]; a typing refinement, behaviour unchanged."
+    }
+  ]
+}

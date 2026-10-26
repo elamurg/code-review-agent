@@ -1,0 +1,21 @@
+{
+  "repo": "scrapy/scrapy",
+  "number": 8314,
+  "title": "Add a test that compares default setting values.",
+  "url": "https://github.com/scrapy/scrapy/pull/8314",
+  "base_sha": "52f7d6a72087b80b8c5744179e04051ef055f24f",
+  "head_sha": "a52180bb8c7db489b1daeea3d954d94926c08c4e",
+  "comments": [
+    {
+      "id": 4258000921,
+      "author": "AdrianAtZyte",
+      "path": "tests/test_settings/__init__.py",
+      "line": 805,
+      "url": "https://github.com/scrapy/scrapy/pull/8314#discussion_r4258000921",
+      "body": "No strong opinion, but we could probably take the chance to normalize the docs on using the code block syntax and hence keep this regex simpler.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Optional simplification of a test regex by normalising docs; the reviewer has no strong opinion."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "repo": "pallets/werkzeug",
+  "number": 3128,
+  "title": "improve list quote handling",
+  "url": "https://github.com/pallets/werkzeug/pull/3128",
+  "base_sha": "b8045e82bbdab8c9c846b6c28ac710ba560c0539",
+  "head_sha": "df03f4b05a2b25059612360eac1143d2f22c2bae",
+  "comments": [
+    {
+      "id": 2967760583,
+      "author": "ThiefMaster",
+      "path": "src/werkzeug/http.py",
+      "line": 178,
+      "url": "https://github.com/pallets/werkzeug/pull/3128#discussion_r2967760583",
+      "body": "```suggestion\n    \"\"\"Remove double quotes and backslash escapes from a header value.\n```\n\nThe previous text uses it to mention escaped quotes and backslashes, I don't think repeating it here adds much... if someone doesn't know what a backslash is I'm gonna lose my last bit of faith in humanity ;)",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring wording suggestion."
+    }
+  ]
+}

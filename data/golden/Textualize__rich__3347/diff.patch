@@ -1,0 +1,153 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 7f9a8329d3..332423136c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - Running tests in environment with `FORCE_COLOR` or `NO_COLOR` environment variables
+ - ansi decoder will now strip problematic private escape sequences (like `\x1b7`) https://github.com/Textualize/rich/pull/3278/
+ - Tree's ASCII_GUIDES and TREE_GUIDES constants promoted to class attributes
++- `rich.Text.highlight_regex` now expects a regular expression object https://github.com/Textualize/rich/pull/3347
+ 
+ ### Added
+ 
+diff --git a/CONTRIBUTORS.md b/CONTRIBUTORS.md
+index edacc5885f..052c837858 100644
+--- a/CONTRIBUTORS.md
++++ b/CONTRIBUTORS.md
+@@ -85,3 +85,4 @@ The following people have contributed to the development of Rich:
+ - [Pierro](https://github.com/xpierroz)
+ - [Bernhard Wagner](https://github.com/bwagner)
+ - [Aaron Beaudoin](https://github.com/AaronBeaudoin)
++- [Sam Woodward](https://github.com/PyWoody)
+diff --git a/rich/text.py b/rich/text.py
+index 7b32967f72..b64205c070 100644
+--- a/rich/text.py
++++ b/rich/text.py
+@@ -591,7 +591,7 @@ def extend_style(self, spaces: int) -> None:
+ 
+     def highlight_regex(
+         self,
+-        re_highlight: str,
++        re_highlight: Union[re.Pattern, str],
+         style: Optional[Union[GetStyleCallable, StyleType]] = None,
+         *,
+         style_prefix: str = "",
+@@ -600,7 +600,7 @@ def highlight_regex(
+         translated to styles.
+ 
+         Args:
+-            re_highlight (str): A regular expression.
++            re_highlight (Union[re.Pattern, str]): A regular expression.
+             style (Union[GetStyleCallable, StyleType]): Optional style to apply to whole match, or a callable
+                 which accepts the matched text and returns a style. Defaults to None.
+             style_prefix (str, optional): Optional prefix to add to style group names.
+@@ -612,7 +612,9 @@ def highlight_regex(
+         append_span = self._spans.append
+         _Span = Span
+         plain = self.plain
+-        for match in re.finditer(re_highlight, plain):
++        if isinstance(re_highlight, str):
++            re_highlight = re.compile(re_highlight)
++        for match in re_highlight.finditer(plain):
+             get_span = match.span
+             if style:
+                 start, end = get_span()
+diff --git a/tests/test_text.py b/tests/test_text.py
+index 18c91cffa6..e1bd438b72 100644
+--- a/tests/test_text.py
++++ b/tests/test_text.py
+@@ -1,3 +1,4 @@
++import re
+ from io import StringIO
+ from typing import List
+ 
+@@ -159,6 +160,7 @@ def test_stylize_negative_index():
+ 
+ 
+ def test_highlight_regex():
++    # As a string
+     text = Text("peek-a-boo")
+ 
+     count = text.highlight_regex(r"NEVER_MATCH", "red")
+@@ -176,6 +178,7 @@ def test_highlight_regex():
+     ]
+ 
+     text = Text("Ada Lovelace, Alan Turing")
++
+     count = text.highlight_regex(
+         r"(?P<yellow>[A-Za-z]+)[ ]+(?P<red>[A-Za-z]+)(?P<NEVER_MATCH>NEVER_MATCH)*"
+     )
+@@ -189,16 +192,52 @@ def test_highlight_regex():
+         Span(19, 25, "red"),  # Turing
+     ]
+ 
++    # As a regular expression object
++    text = Text("peek-a-boo")
++
++    count = text.highlight_regex(re.compile(r"NEVER_MATCH"), "red")
++    assert count == 0
++    assert len(text._spans) == 0
++
++    # text: peek-a-boo
++    # indx: 0123456789
++    count = text.highlight_regex(re.compile(r"[a|e|o]+"), "red")
++    assert count == 3
++    assert sorted(text._spans) == [
++        Span(1, 3, "red"),
++        Span(5, 6, "red"),
++        Span(8, 10, "red"),
++    ]
++
++    text = Text("Ada Lovelace, Alan Turing")
++
++    count = text.highlight_regex(
++        re.compile(
++            r"(?P<yellow>[A-Za-z]+)[ ]+(?P<red>[A-Za-z]+)(?P<NEVER_MATCH>NEVER_MATCH)*"
++        )
++    )
++
++    # The number of matched name should be 2
++    assert count == 2
++    assert sorted(text._spans) == [
++        Span(0, 3, "yellow"),  # Ada
++        Span(4, 12, "red"),  # Lovelace
++        Span(14, 18, "yellow"),  # Alan
++        Span(19, 25, "red"),  # Turing
++    ]
++
+ 
+ def test_highlight_regex_callable():
+     text = Text("Vulnerability CVE-2018-6543 detected")
+     re_cve = r"CVE-\d{4}-\d+"
++    compiled_re_cve = re.compile(r"CVE-\d{4}-\d+")
+ 
+     def get_style(text: str) -> Style:
+         return Style.parse(
+             f"bold yellow link https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword={text}"
+         )
+ 
++    # string
+     count = text.highlight_regex(re_cve, get_style)
+     assert count == 1
+     assert len(text._spans) == 1
+@@ -209,6 +248,20 @@ def get_style(text: str) -> Style:
+         == "https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2018-6543"
+     )
+ 
++    # Clear the tracked _spans for the regular expression object's use
++    text._spans.clear()
++
++    # regular expression object
++    count = text.highlight_regex(compiled_re_cve, get_style)
++    assert count == 1
++    assert len(text._spans) == 1
++    assert text._spans[0].start == 14
++    assert text._spans[0].end == 27
++    assert (
++        text._spans[0].style.link
++        == "https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2018-6543"
++    )
++
+ 
+ def test_highlight_words():
+     text = Text("Do NOT! touch anything!")

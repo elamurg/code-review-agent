@@ -1,0 +1,21 @@
+{
+  "repo": "psf/black",
+  "number": 5530,
+  "title": "Echo force-excluded stdin input unchanged",
+  "url": "https://github.com/psf/black/pull/5530",
+  "base_sha": "2d247ccf65194f92f3f6a3c0d7362051235d004c",
+  "head_sha": "e65aacf075f29be718f517e9fba963ba37273988",
+  "comments": [
+    {
+      "id": 4327631238,
+      "author": "cobaltt7",
+      "path": "CHANGES.md",
+      "line": 50,
+      "url": "https://github.com/psf/black/pull/5530#discussion_r4327631238",
+      "body": "```suggestion\n  `--force-exclude` back unchanged, retaining line endings and non-UTF-8 files (#5530)\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog wording suggestion."
+    }
+  ]
+}

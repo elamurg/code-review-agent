@@ -1,0 +1,65 @@
+{
+  "repo": "python-attrs/attrs",
+  "number": 1541,
+  "title": "Expose converter as a decorator",
+  "url": "https://github.com/python-attrs/attrs/pull/1541",
+  "base_sha": "57b314c0dc8e0b80c0ed8f61c0be81965137ea41",
+  "head_sha": "ec6913d59bac88d130ead8c6d96b09109eb15b04",
+  "comments": [
+    {
+      "id": 3093815921,
+      "author": "hynek",
+      "path": "docs/init.md",
+      "line": 387,
+      "url": "https://github.com/python-attrs/attrs/pull/1541#discussion_r3093815921",
+      "body": "```suggestion\n\nOr as a decorator\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Blank line in documentation."
+    },
+    {
+      "id": 3093822886,
+      "author": "hynek",
+      "path": "docs/init.md",
+      "line": 391,
+      "url": "https://github.com/python-attrs/attrs/pull/1541#discussion_r3093822886",
+      "body": "```suggestion\n...     factor: ClassVar[int] = 5  # ClassVars are ignored by attrs\n```\n\nthis is cleaner since it allows you to still have type annotations.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Better example in documentation (ClassVar annotation)."
+    },
+    {
+      "id": 3093828769,
+      "author": "hynek",
+      "path": "src/attr/_make.py",
+      "line": 2849,
+      "url": "https://github.com/python-attrs/attrs/pull/1541#discussion_r3093828769",
+      "body": "```suggestion\n        .. versionadded:: 26.2.0\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Fills in the version number in a versionadded directive."
+    },
+    {
+      "id": 3093833262,
+      "author": "hynek",
+      "path": "src/attr/_make.py",
+      "line": 2859,
+      "url": "https://github.com/python-attrs/attrs/pull/1541#discussion_r3093833262",
+      "body": "```suggestion\n            self._converter = pipe(self._converter, decorated_converter)\n\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Blank line formatting."
+    },
+    {
+      "id": 3093850637,
+      "author": "hynek",
+      "path": "src/attr/_make.py",
+      "line": 2845,
+      "url": "https://github.com/python-attrs/attrs/pull/1541#discussion_r3093850637",
+      "body": "```suggestion\n        Decorator that appends *meth* to the list of converters.\n```\n\nlet's encode clearly that the decorated one goes to the end",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Docstring wording (appends vs adds)."
+    }
+  ]
+}

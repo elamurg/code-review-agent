@@ -1,0 +1,57 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index d2e7906004..bdcfb49ad2 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+ - Fixed empty print ignoring the `end` parameter
+ - Fixed `Text.from_ansi` removing newlines https://github.com/Textualize/rich/pull/4076
+ - Fixed `FileProxy.isatty` not proxying https://github.com/Textualize/rich/pull/4077
++- Fixed inline code in Markdown tables cells https://github.com/Textualize/rich/pull/4079
+ 
+ ## [14.3.4] - 2026-04-11
+ 
+diff --git a/rich/markdown.py b/rich/markdown.py
+index 1e28343e86..abbbb07d64 100644
+--- a/rich/markdown.py
++++ b/rich/markdown.py
+@@ -331,9 +331,10 @@ def __init__(self, justify: JustifyMethod) -> None:
+         self.justify = justify
+ 
+     def on_text(self, context: MarkdownContext, text: TextType) -> None:
+-        text = Text(text) if isinstance(text, str) else text
+-        text.stylize(context.current_style)
+-        self.content.append_text(text)
++        if isinstance(text, str):
++            self.content.append(text, context.current_style)
++        else:
++            self.content.append_text(text)
+ 
+ 
+ class ListElement(MarkdownElement):
+diff --git a/tests/test_markdown.py b/tests/test_markdown.py
+index a76eac9b18..c461c76966 100644
+--- a/tests/test_markdown.py
++++ b/tests/test_markdown.py
+@@ -199,6 +199,22 @@ def test_table_with_empty_cells() -> None:
+     assert result == expected
+ 
+ 
++def test_inline_code_in_table_cells() -> None:
++    """Test inline code in table cells.
++
++    Regression test for https://github.com/Textualize/rich/issues/4038
++
++    """
++    markdown = Markdown(
++        "| Col |\n|---|\n| `print('hello');` |\n",
++        inline_code_theme="monokai",
++        inline_code_lexer="python",
++    )
++    result = render(markdown)
++    expected = "\n\x1b[36m                 \x1b[0m\n\x1b[36m \x1b[0m\x1b[36mCol\x1b[0m\x1b[1m            \x1b[0m\x1b[36m \x1b[0m\n\x1b[36m ─────────────── \x1b[0m\n\x1b[36m \x1b[0m\x1b[38;2;248;248;242;48;2;39;40;34mprint\x1b[0m\x1b[38;2;248;248;242;48;2;39;40;34m(\x1b[0m\x1b[38;2;230;219;116;48;2;39;40;34m'\x1b[0m\x1b[38;2;230;219;116;48;2;39;40;34mhello\x1b[0m\x1b[38;2;230;219;116;48;2;39;40;34m'\x1b[0m\x1b[38;2;248;248;242;48;2;39;40;34m)\x1b[0m\x1b[38;2;248;248;242;48;2;39;40;34m;\x1b[0m\x1b[36m \x1b[0m\n\x1b[36m                 \x1b[0m\n"
++    assert result == expected
++
++
+ if __name__ == "__main__":
+     markdown = Markdown(MARKDOWN)
+     rendered = render(markdown)

@@ -1,0 +1,97 @@
+diff --git a/CHANGES.md b/CHANGES.md
+index 1bb90aae3d3..845d4289fe4 100644
+--- a/CHANGES.md
++++ b/CHANGES.md
+@@ -44,6 +44,11 @@
+ 
+ <!-- Changes to Black's terminal output and error messages -->
+ 
++- Write the content of a file passed through stdin that is excluded with
++  `--force-exclude` back unchanged. It was decoded and re-encoded as text, which turned
++  LF line endings into CRLF on Windows and failed on files that aren't UTF-8. With
++  `--check` or `--diff`, nothing is written to stdout anymore (#5530)
++
+ ### _Blackd_
+ 
+ <!-- Changes to Blackd -->
+diff --git a/src/black/__init__.py b/src/black/__init__.py
+index 847c4d2789a..fd82d9b36ed 100644
+--- a/src/black/__init__.py
++++ b/src/black/__init__.py
+@@ -782,8 +782,8 @@ def main(
+         if not sources:
+             if verbose or not quiet:
+                 out("No Python files are present to be formatted. Nothing to do 😴")
+-            if "-" in src:
+-                sys.stdout.write(sys.stdin.read())
++            if "-" in src and write_back is WriteBack.YES:
++                _echo_stdin_unchanged()
+             if "GITHUB_OUTPUT" in os.environ:
+                 report.write_github_outputs(Path(os.environ["GITHUB_OUTPUT"]))
+             ctx.exit(0)
+@@ -1188,6 +1188,22 @@ def _write_to_stdout(
+     f.detach()
+ 
+ 
++def _echo_stdin_unchanged() -> None:
++    """Copy stdin to stdout byte for byte.
++
++    Going through the text streams instead would fail on input that isn't in their
++    encoding (e.g. a latin-1 file) and, on Windows, turn LF line endings into CRLF.
++    """
++    in_buffer = getattr(sys.stdin, "buffer", None)
++    out_buffer = getattr(sys.stdout, "buffer", None)
++    if in_buffer is None or out_buffer is None:
++        sys.stdout.write(sys.stdin.read())
++        return
++
++    out_buffer.write(in_buffer.read())
++    out_buffer.flush()
++
++
+ def check_stability_and_equivalence(
+     src_contents: str,
+     dst_contents: str,
+diff --git a/tests/test_black.py b/tests/test_black.py
+index b3b6f2f8110..fc75bb703bd 100644
+--- a/tests/test_black.py
++++ b/tests/test_black.py
+@@ -1726,6 +1726,38 @@ def test_preserves_line_endings_via_stdin(self) -> None:
+             if nl == "\n":
+                 self.assertNotIn(b"\r\n", output)
+ 
++    def test_force_excluded_stdin_is_echoed_unchanged(self) -> None:
++        # Content passed through stdin for a file that `--force-exclude` excludes is
++        # written back byte for byte, whatever its line endings or encoding.
++        args = [
++            "--config",
++            str(THIS_DIR / "empty.toml"),
++            "--force-exclude",
++            r"excluded\.py",
++            "--stdin-filename",
++            "excluded.py",
++        ]
++        for contents in (
++            b"x  =  1\ny = 2\n",
++            b"x  =  1\r\ny = 2\r\n",
++            b"# -*- coding: latin-1 -*-\ns  =  '\xe9t\xe9'\n",
++        ):
++            runner = BlackRunner()
++            result = runner.invoke(black.main, [*args, "-"], input=BytesIO(contents))
++            self.assertEqual(result.exit_code, 0, result.stderr_bytes)
++            self.assertEqual(result.stdout_bytes, contents)
++
++        # Like an unchanged file, an excluded one produces no output when checking.
++        for options in (["--check"], ["--diff"], ["--check", "--diff"]):
++            runner = BlackRunner()
++            result = runner.invoke(
++                black.main,
++                [*args, *options, "-"],
++                input=BytesIO(b"x  =  1\n"),
++            )
++            self.assertEqual(result.exit_code, 0, result.stderr_bytes)
++            self.assertEqual(result.stdout_bytes, b"")
++
+     def test_normalize_line_endings(self) -> None:
+         with TemporaryDirectory() as workspace:
+             test_file = Path(workspace) / "test.py"

@@ -1,0 +1,97 @@
+diff --git a/scrapy/core/_http2/agent.py b/scrapy/core/_http2/agent.py
+index 6e65a5fef91..4d766f2fd67 100644
+--- a/scrapy/core/_http2/agent.py
++++ b/scrapy/core/_http2/agent.py
+@@ -14,6 +14,7 @@
+ if TYPE_CHECKING:
+     from twisted.internet.base import ReactorBase
+     from twisted.internet.endpoints import HostnameEndpoint
++    from twisted.python.failure import Failure
+ 
+     from scrapy.crawler import Crawler
+     from scrapy.http import Request, Response
+@@ -45,11 +46,7 @@ def get_connection(
+     ) -> Deferred[H2ClientProtocol]:
+         if key in self._pending_requests:
+             # Received a request while connecting to remote
+-            # Create a deferred which will fire with the H2ClientProtocol
+-            # instance
+-            d: Deferred[H2ClientProtocol] = Deferred()
+-            self._pending_requests[key].append(d)
+-            return d
++            return self._pending_request(key)
+ 
+         # Check if we already have a connection to the remote
+         conn = self._connections.get(key, None)
+@@ -75,10 +72,26 @@ def _new_connection(
+             tls_verbose_logging=self._tls_verbose_logging,
+         )
+         conn_d = endpoint.connect(factory)
+-        conn_d.addCallback(self.put_connection, key)
++        d = self._pending_request(key)
++        conn_d.addCallbacks(
++            self.put_connection,
++            self._connection_failed,
++            callbackArgs=(key,),
++            errbackArgs=(key,),
++        )
++        return d
+ 
+-        d: Deferred[H2ClientProtocol] = Deferred()
+-        self._pending_requests[key].append(d)
++    def _pending_request(self, key: ConnectionKey) -> Deferred[H2ClientProtocol]:
++        """Return a deferred that fires with the connection being established
++        for *key*.
++
++        Cancelling it takes it out of the queue, so that the connection, once
++        established or found unreachable, only fires the deferreds of the
++        requests that are still waiting for it.
++        """
++        pending_requests = self._pending_requests[key]
++        d: Deferred[H2ClientProtocol] = Deferred(pending_requests.remove)
++        pending_requests.append(d)
+         return d
+ 
+     def put_connection(
+@@ -95,6 +108,14 @@ def put_connection(
+ 
+         return conn
+ 
++    def _connection_failed(self, failure: Failure, key: ConnectionKey) -> None:
++        """Fail the requests waiting for a connection that could not be
++        established, and let a later request try to connect again."""
++        pending_requests = self._pending_requests.pop(key)
++        while pending_requests:
++            d = pending_requests.popleft()
++            d.errback(failure)
++
+     def _remove_connection(self, _: None, key: ConnectionKey) -> None:
+         self._connections.pop(key)
+ 
+diff --git a/tests/test_downloader_handler_twisted_http2.py b/tests/test_downloader_handler_twisted_http2.py
+index ce65e881ef3..036daad67b7 100644
+--- a/tests/test_downloader_handler_twisted_http2.py
++++ b/tests/test_downloader_handler_twisted_http2.py
+@@ -83,22 +83,6 @@ async def test_protocol(self, mockserver: MockServer) -> None:
+             response = await download_handler.download_request(request)
+         assert response.protocol == "h2"
+ 
+-    def test_download_conn_failed(self) -> None:  # type: ignore[override]
+-        # Unlike HTTP11DownloadHandler which raises it from download_request()
+-        # (without any special handling), here ConnectionRefusedError (raised in
+-        # twisted.internet.endpoints.startConnectionAttempts()) bubbles up as
+-        # an unhandled exception in a Deferred and the handler waits until
+-        # DOWNLOAD_TIMEOUT.
+-        pytest.skip("The handler doesn't properly reraise ConnectionRefusedError")
+-
+-    def test_download_dns_error(self) -> None:  # type: ignore[override]
+-        # Unlike HTTP11DownloadHandler which raises it from download_request()
+-        # (without any special handling), here DNSLookupError (raised in
+-        # twisted.internet.endpoints.startConnectionAttempts()) bubbles up as
+-        # an unhandled exception in a Deferred and the handler waits until
+-        # DOWNLOAD_TIMEOUT.
+-        pytest.skip("The handler doesn't properly reraise DNSLookupError")
+-
+     @coroutine_test
+     async def test_concurrent_requests_same_domain(
+         self, mockserver: MockServer

@@ -1,0 +1,356 @@
+diff --git a/changelog.d/1592.change.md b/changelog.d/1592.change.md
+new file mode 100644
+index 000000000..95fa51f6b
+--- /dev/null
++++ b/changelog.d/1592.change.md
+@@ -0,0 +1,2 @@
++`attrs.setters.pipe()` now rejects generator functions.
++`on_setattr` hooks can now be generator functions for pre/post-yield side effects.
+diff --git a/src/attr/_make.py b/src/attr/_make.py
+index 6794464e9..d70ca911d 100644
+--- a/src/attr/_make.py
++++ b/src/attr/_make.py
+@@ -160,6 +160,9 @@ def attrib(
+     .. versionchanged:: 25.4.0
+        *kw_only* can now be None, and its default is also changed from False to
+        None.
++    .. versionchanged:: 25.5.0
++       *on_setattr* hooks can now be generator functions for pre/post-yield
++       side effects.
+     """
+     eq, eq_key, order, order_key = _determine_attrib_eq_order(
+         cmp, eq, order, True
+@@ -1183,11 +1186,17 @@ def __setattr__(self, name, val):
+             try:
+                 a, hook = sa_attrs[name]
+             except KeyError:
+-                nval = val
++                _OBJ_SETATTR(self, name, val)
+             else:
+-                nval = hook(self, a, val)
+-
+-            _OBJ_SETATTR(self, name, nval)
++                if inspect.isgeneratorfunction(hook):
++                    gen = hook(self, a, val)
++                    nval = next(gen)
++                    _OBJ_SETATTR(self, name, nval)
++                    with contextlib.suppress(StopIteration):
++                        next(gen)
++                else:
++                    nval = hook(self, a, val)
++                    _OBJ_SETATTR(self, name, nval)
+ 
+         self._cls_dict["__attrs_own_setattr__"] = True
+         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
+@@ -1427,6 +1436,9 @@ def attrs(
+        *kw_only* now only applies to attributes defined in the current class,
+        and respects attribute-level ``kw_only=False`` settings.
+     .. versionadded:: 25.4.0 *force_kw_only*
++    .. versionchanged:: 25.5.0
++       *on_setattr* hooks can now be generator functions for pre/post-yield
++       side effects.
+     """
+     if repr_ns is not None:
+         import warnings
+diff --git a/src/attr/_next_gen.py b/src/attr/_next_gen.py
+index db386acb7..3c1fa30da 100644
+--- a/src/attr/_next_gen.py
++++ b/src/attr/_next_gen.py
+@@ -114,6 +114,13 @@ def define(
+             If left None, the default behavior is to run converters and
+             validators whenever an attribute is set.
+ 
++            .. versionchanged:: 25.5.0
++               Generators can be used as hooks.
++               Pre-yield code transforms the value, ``yield`` provides the
++               value to assign, and post-yield code executes after the
++               assignment.
++               Generators are forbidden inside ``pipe()``.
++
+         init (bool):
+             Create a ``__init__`` method that initializes the *attrs*
+             attributes. Leading underscores are stripped for the argument name,
+@@ -329,6 +336,9 @@ def define(
+        and respects attribute-level ``kw_only=False`` settings.
+     .. versionadded:: 25.4.0
+        Added *force_kw_only* to go back to the previous *kw_only* behavior.
++    .. versionchanged:: 25.5.0
++       *on_setattr* hooks can now be generator functions for pre/post-yield
++       side effects.
+ 
+     .. note::
+ 
+@@ -573,6 +583,9 @@ def field(
+             `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
+             attribute -- regardless of the setting in `define()`.
+ 
++            .. versionchanged:: 25.5.0
++               Generators can be used as hooks for pre/post-yield side effects.
++
+         alias (str | None):
+             Override this attribute's parameter name in the generated
+             ``__init__`` method. If left None, default to ``name`` stripped
+@@ -588,6 +601,9 @@ def field(
+     .. versionchanged:: 25.4.0
+        *kw_only* can now be None, and its default is also changed from False to
+        None.
++    .. versionchanged:: 25.5.0
++       *on_setattr* hooks can now be generator functions for pre/post-yield
++       side effects.
+ 
+     .. seealso::
+ 
+diff --git a/src/attr/setters.py b/src/attr/setters.py
+index 78b08398a..ad4526f2d 100644
+--- a/src/attr/setters.py
++++ b/src/attr/setters.py
+@@ -4,6 +4,8 @@
+ Commonly used hooks for on_setattr.
+ """
+ 
++import inspect
++
+ from . import _config
+ from .exceptions import FrozenAttributeError
+ 
+@@ -13,7 +15,19 @@ def pipe(*setters):
+     Run all *setters* and return the return value of the last one.
+ 
+     .. versionadded:: 20.1.0
++    .. versionchanged:: 25.5.0
++       Generator functions are no longer allowed in ``pipe()``.
++       Use a generator directly as an ``on_setattr`` hook for post-assignment
++       side effects.
+     """
++    for s in setters:
++        if inspect.isgeneratorfunction(s):
++            msg = (
++                "Generator functions are not allowed in pipe(). "
++                "Use a regular function for value transformation or a generator directly "
++                "as an on_setattr hook for post-assignment side effects."
++            )
++            raise TypeError(msg)
+ 
+     def wrapped_pipe(instance, attrib, new_value):
+         rv = new_value
+diff --git a/tests/test_setattr.py b/tests/test_setattr.py
+index f44abf658..8bb1e6329 100644
+--- a/tests/test_setattr.py
++++ b/tests/test_setattr.py
+@@ -48,6 +48,51 @@ class Hooked:
+         assert "yyy" == h.y
+         assert "hooked!" == h.x
+ 
++    def test_change_with_generator_hook(self):
++        """
++        The value yielded by a generator hook overwrites the value.
++        """
++
++        def hook(instance, attrib, value):
++            yield "yielded!"
++
++        @attr.s
++        class Hooked:
++            x = attr.ib(on_setattr=hook)
++
++        h = Hooked("x")
++
++        assert "x" == h.x
++
++        h.x = "xxx"
++
++        assert "yielded!" == h.x
++
++    def test_generator_hook_executes_after_yielding(self):
++        """
++        Generator post-yield code runs after the value is set on the instance.
++        """
++        calls = []
++
++        def hook(instance, attrib, value):
++            calls.append(("pre", instance.x))
++            yield value
++            calls.append(("post", instance.x))
++
++        @attr.s
++        class Hooked:
++            x = attr.ib(on_setattr=hook)
++
++        h = Hooked("x")
++
++        assert "x" == h.x
++        assert [] == calls
++
++        h.x = "xxx"
++
++        assert [("pre", "x"), ("post", "xxx")] == calls
++        assert "xxx" == h.x
++
+     def test_frozen_attribute(self):
+         """
+         Frozen attributes raise FrozenAttributeError, others are not affected.
+@@ -146,6 +191,164 @@ class Piped:
+         assert 42 == p.x1
+         assert 23 == p.x2
+ 
++    def test_pipe_rejects_generator(self):
++        """
++        Generator functions cannot be used inside pipe().
++        """
++
++        def gen(_, __, val):
++            yield val
++
++        with pytest.raises(
++            TypeError, match="Generator functions are not allowed"
++        ):
++            setters.pipe(setters.convert, gen)
++
++    def test_list_on_setattr_rejects_generator(self):
++        """
++        Passing a generator function in a list to on_setattr raises TypeError.
++        """
++
++        def gen(_, __, val):
++            yield val
++
++        with pytest.raises(
++            TypeError, match="Generator functions are not allowed"
++        ):
++
++            @attr.s
++            class C:
++                x = attr.ib(on_setattr=[setters.convert, gen])
++
++    def test_generator_hook_not_called_in_init(self):
++        """
++        Generator hooks are not invoked during __init__, same as regular hooks.
++        """
++
++        def hook(instance, attrib, value):
++            yield "hooked"
++
++        @attr.s
++        class Hooked:
++            x = attr.ib(on_setattr=hook)
++
++        h = Hooked("x")
++
++        assert "x" == h.x
++
++        h.x = "xxx"
++
++        assert "hooked" == h.x
++
++    def test_generator_hook_with_define(self):
++        """
++        Generator hooks work with attrs.define.
++        """
++
++        def hook(instance, attrib, value):
++            yield value.upper()
++
++        @attr.define
++        class C:
++            x: str = attr.field(on_setattr=hook)
++
++        c = C("hello")
++
++        assert "hello" == c.x
++
++        c.x = "world"
++
++        assert "WORLD" == c.x
++
++    def test_generator_hook_class_level(self):
++        """
++        Generator hooks work as class-level on_setattr.
++        """
++
++        call_count = 0
++
++        def hook(instance, attrib, value):
++            nonlocal call_count
++            call_count += 1
++            yield value
++
++        @attr.s(on_setattr=hook)
++        class C:
++            x = attr.ib()
++            y = attr.ib()
++
++        c = C(1, 2)
++
++        assert 1 == c.x
++        assert 2 == c.y
++
++        c.x = 10
++        assert 1 == call_count
++
++        c.y = 20
++        assert 2 == call_count
++
++    def test_generator_pre_yield_exception(self):
++        """
++        If a generator raises before yielding, the value is not set.
++        """
++
++        def hook(instance, attrib, value):
++            raise ValueError("bad value")
++            yield
++
++        @attr.s
++        class C:
++            x = attr.ib(on_setattr=hook)
++
++        c = C("original")
++
++        with pytest.raises(ValueError, match="bad value"):
++            c.x = "new"
++
++        assert "original" == c.x
++
++    def test_generator_post_yield_exception(self):
++        """
++        If a generator raises after yielding, the value is already set and
++        the exception propagates.
++        """
++
++        def hook(instance, attrib, value):
++            yield value
++            raise RuntimeError("post-yield failure")
++
++        @attr.s
++        class C:
++            x = attr.ib(on_setattr=hook)
++
++        c = C("original")
++
++        with pytest.raises(RuntimeError, match="post-yield failure"):
++            c.x = "new"
++
++        assert "new" == c.x
++
++    def test_generator_yields_multiple_times(self):
++        """
++        Only the first yield is used as the new value.
++        """
++
++        def hook(instance, attrib, value):
++            yield "first"
++            yield "second"
++            yield "third"
++
++        @attr.s
++        class C:
++            x = attr.ib(on_setattr=hook)
++
++        c = C("old")
++
++        c.x = "new"
++
++        assert "first" == c.x
++
+     def test_make_class(self):
+         """
+         on_setattr of make_class gets forwarded.

@@ -1,0 +1,191 @@
+diff --git a/AUTHORS b/AUTHORS
+index e2fad5e8364..026f6aed2b3 100644
+--- a/AUTHORS
++++ b/AUTHORS
+@@ -303,6 +303,7 @@ Marc Mueller
+ Marc Schlaich
+ Marcel Telka
+ Marcelo Duarte Trevisani
++Marcelo Markus
+ Marcin Augustynów
+ Marcin Bachry
+ Marc Bresson
+@@ -454,6 +455,7 @@ Seth Junot
+ Shantanu Jain
+ Sharad Nair
+ Shaygan Hooshyari
++Shimon Schwartz
+ Shubham Adep
+ Simon Blanchard
+ Simon Gomizelj
+diff --git a/changelog/14412.bugfix.rst b/changelog/14412.bugfix.rst
+new file mode 100644
+index 00000000000..4148ca8b454
+--- /dev/null
++++ b/changelog/14412.bugfix.rst
+@@ -0,0 +1 @@
++Fixed incorrect timing information for subtests and parent tests when ``console_output_style="times"``.
+diff --git a/src/_pytest/terminal.py b/src/_pytest/terminal.py
+index 023fdcaabb8..5f77fdbb53f 100644
+--- a/src/_pytest/terminal.py
++++ b/src/_pytest/terminal.py
+@@ -409,7 +409,8 @@ def __init__(self, config: Config, file: TextIO | None = None) -> None:
+         # We use CallableBool here to support both.
+         self.isatty = compat.CallableBool(file.isatty())
+         self._progress_nodeids_reported: set[NodeId] = set()
+-        self._timing_nodeids_reported: set[NodeId] = set()
++        self._timing_report_ids_reported: set[int] = set()
++        self._current_logreport: TestReport | None = None
+         self._show_progress_info = self._determine_show_progress_info()
+         self._collect_report_last_write = timing.Instant()
+         self._already_displayed_warnings: int | None = None
+@@ -634,6 +635,7 @@ def pytest_runtest_logstart(
+             self.flush()
+ 
+     def pytest_runtest_logreport(self, report: TestReport) -> None:
++        self._current_logreport = report
+         self._tests_ran = True
+         rep = report
+ 
+@@ -750,9 +752,18 @@ def _get_progress_information_message(self) -> str:
+                 + self._get_reports_to_display("error")
+                 + self._get_reports_to_display("")
+             )
+-            current_location = all_reports[-1].location[0]
++            for key in self.stats:
++                if key.startswith("subtests "):
++                    all_reports.extend(self._get_reports_to_display(key))
++
++            report = self._current_logreport
++            if report is not None:
++                current_location = report.location[0]
++            else:
++                current_location = all_reports[-1].location[0] if all_reports else ""
++
+             not_reported = [
+-                r for r in all_reports if r.id not in self._timing_nodeids_reported
++                r for r in all_reports if id(r) not in self._timing_report_ids_reported
+             ]
+             tests_in_module = sum(
+                 i.location[0] == current_location for i in self._session.items
+@@ -764,7 +775,7 @@ def _get_progress_information_message(self) -> str:
+             )
+             last_in_module = tests_completed == tests_in_module
+             if self.showlongtestinfo or last_in_module:
+-                self._timing_nodeids_reported.update(r.id for r in not_reported)
++                self._timing_report_ids_reported.update(id(r) for r in not_reported)
+                 return format_node_duration(
+                     sum(r.duration for r in not_reported if isinstance(r, TestReport))
+                 )
+diff --git a/testing/test_terminal.py b/testing/test_terminal.py
+index 30208084ab2..241e738b601 100644
+--- a/testing/test_terminal.py
++++ b/testing/test_terminal.py
+@@ -140,6 +140,107 @@ def test_hello():
+         combined = "\n".join(result.stdout.lines + result.stderr.lines)
+         assert "INTERNALERROR" not in combined
+ 
++    def test_console_output_style_times_with_subtests(self, pytester: Pytester) -> None:
++        pytester.makepyfile(
++            test_repro="""
++                def test_subtests(subtests):
++                    for i in range(2):
++                        with subtests.test(i=i):
++                            pass
++            """
++        )
++        result = pytester.runpytest(
++            "test_repro.py",
++            "-v",
++            "-o",
++            "console_output_style=times",
++            "-o",
++            "verbosity_subtests=1",
++        )
++
++        # Check that we got positive/non-zero timing info for subtests and the parent PASSED line.
++        # We check that it does not show "0.000us".
++        lines = result.stdout.lines
++        subpassed_lines = [
++            line_content for line_content in lines if "SUBPASSED" in line_content
++        ]
++        passed_lines = [
++            line_content
++            for line_content in lines
++            if "PASSED" in line_content and "SUBPASSED" not in line_content
++        ]
++        assert len(subpassed_lines) == 2
++        assert len(passed_lines) == 1
++        for line in subpassed_lines + passed_lines:
++            assert "0.000us" not in line
++
++    def test_console_output_style_times_with_subtests_xdist(
++        self, pytester: Pytester, monkeypatch: pytest.MonkeyPatch
++    ) -> None:
++        pytest.importorskip("xdist")
++        monkeypatch.delenv("PYTEST_DISABLE_PLUGIN_AUTOLOAD", raising=False)
++        pytester.makepyfile(
++            test_repro="""
++                def test_subtests(subtests):
++                    for i in range(2):
++                        with subtests.test(i=i):
++                            pass
++            """
++        )
++        result = pytester.runpytest(
++            "test_repro.py",
++            "-n2",
++            "-v",
++            "-o",
++            "console_output_style=times",
++            "-o",
++            "verbosity_subtests=1",
++        )
++
++        lines = result.stdout.lines
++        subpassed_lines = [
++            line_content for line_content in lines if "SUBPASSED" in line_content
++        ]
++        passed_lines = [
++            line_content
++            for line_content in lines
++            if "PASSED" in line_content and "SUBPASSED" not in line_content
++        ]
++        assert len(subpassed_lines) == 2
++        assert len(passed_lines) == 1
++        for line in subpassed_lines + passed_lines:
++            assert "0.000us" not in line
++
++    def test_progress_information_message_no_current_report(
++        self, pytester: Pytester, monkeypatch: pytest.MonkeyPatch
++    ) -> None:
++        item = pytester.getitem("def test_func(): pass")
++        tr = TerminalReporter(item.config)
++        monkeypatch.setattr(tr.config, "get_verbosity", lambda *args, **kwargs: 1)
++        tr._show_progress_info = "times"
++
++        class MockSession:
++            testscollected = 1
++            items = [item]
++
++        tr._session = MockSession()  # type: ignore[assignment]
++
++        from _pytest.reports import TestReport
++
++        rep = TestReport(
++            nodeid=item.nodeid,
++            location=item.location,
++            keywords={},
++            outcome="passed",
++            longrepr=None,
++            when="call",
++            duration=0.123,
++        )
++        tr.stats.setdefault("passed", []).append(rep)
++
++        msg = tr._get_progress_information_message()
++        assert msg == " 123.0ms"
++
+     def test_internalerror(self, pytester: Pytester, linecomp) -> None:
+         modcol = pytester.getmodulecol("def test_one(): pass")
+         rep = TerminalReporter(modcol.config, file=linecomp.stringio)

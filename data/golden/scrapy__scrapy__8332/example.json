@@ -1,0 +1,21 @@
+{
+  "repo": "scrapy/scrapy",
+  "number": 8332,
+  "title": "Fail HTTP/2 requests when the connection cannot be established",
+  "url": "https://github.com/scrapy/scrapy/pull/8332",
+  "base_sha": "fbfc89ae7b72531a97fb4ef6d65ef3af392aa45c",
+  "head_sha": "f9a62bb32d506694565b91c5d0b1e3d9e0e58060",
+  "comments": [
+    {
+      "id": 4292600744,
+      "author": "wRAR",
+      "path": "scrapy/core/_http2/agent.py",
+      "line": 76,
+      "url": "https://github.com/scrapy/scrapy/pull/8332#discussion_r4292600744",
+      "body": "Can you please use explicit `addCallback` and `addErrback`?",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Asks for explicit addCallback/addErrback; a style request with no defect asserted."
+    }
+  ]
+}

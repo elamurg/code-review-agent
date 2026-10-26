@@ -1,0 +1,21 @@
+{
+  "repo": "pypa/pip",
+  "number": 14235,
+  "title": "Avoid resolving every PATH entry in the script location warning",
+  "url": "https://github.com/pypa/pip/pull/14235",
+  "base_sha": "274fefe04c3d5a5508074e05a436cea2dd2553da",
+  "head_sha": "747f81b0c385e5cf89258842f9a618b6ff1b905e",
+  "comments": [
+    {
+      "id": 3741480727,
+      "author": "ichard26",
+      "path": "src/pip/_internal/operations/install/wheel.py",
+      "line": 148,
+      "url": "https://github.com/pypa/pip/pull/14235#discussion_r3741480727",
+      "body": "```suggestion\n    # Resolving PATH entries can be slow, so only do it for what's left.\n```\n\nThis is really what's important. ",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Code comment wording."
+    }
+  ]
+}

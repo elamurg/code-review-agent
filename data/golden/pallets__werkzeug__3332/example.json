@@ -1,0 +1,9 @@
+{
+  "repo": "pallets/werkzeug",
+  "number": 3332,
+  "title": "deprecate `wrap_file`",
+  "url": "https://github.com/pallets/werkzeug/pull/3332",
+  "base_sha": "ac7d7dd8a4dc0755ada16f7105afd14f736da831",
+  "head_sha": "e49785c25326ae73269c4363331b9a788f702be2",
+  "comments": []
+}

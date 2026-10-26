@@ -1,0 +1,9 @@
+{
+  "repo": "aio-libs/aiohttp",
+  "number": 14012,
+  "title": "Increment version to 3.14.6.dev0",
+  "url": "https://github.com/aio-libs/aiohttp/pull/14012",
+  "base_sha": "f17c631bddcfd4ec712342db28f1d3381a3fec71",
+  "head_sha": "4257b900779a9f5124be3e8000b922cb852c2a34",
+  "comments": []
+}

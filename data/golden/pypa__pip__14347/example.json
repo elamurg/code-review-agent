@@ -1,0 +1,21 @@
+{
+  "repo": "pypa/pip",
+  "number": 14347,
+  "title": "Type Checking Part 2: Validate configuration arguments before invoking actions",
+  "url": "https://github.com/pypa/pip/pull/14347",
+  "base_sha": "dc001392e73c6a19f97e15df7415ec008579547a",
+  "head_sha": "de6c5f14f02b9d6d8fbf5268bd40eec2b18d54f7",
+  "comments": [
+    {
+      "id": 4276502889,
+      "author": "ichard26",
+      "path": "src/pip/_internal/commands/configuration.py",
+      "line": 32,
+      "url": "https://github.com/pypa/pip/pull/14347#discussion_r4276502889",
+      "body": "Let's only build an example string if the arguments don't match, so it's more obvious it's only for error formatting.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Build the example string lazily for clarity; the code is correct either way."
+    }
+  ]
+}

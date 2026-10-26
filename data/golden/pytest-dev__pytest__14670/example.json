@@ -1,0 +1,21 @@
+{
+  "repo": "pytest-dev/pytest",
+  "number": 14670,
+  "title": "Bugfix 14412 subtests timing",
+  "url": "https://github.com/pytest-dev/pytest/pull/14670",
+  "base_sha": "e84e063e7d35e7e198536d05099395be7a92a9a1",
+  "head_sha": "71e80dd3141c95247e1e5fecb0cf3afba8afed67",
+  "comments": [
+    {
+      "id": 4176779882,
+      "author": "RonnyPfannschmidt",
+      "path": "src/_pytest/terminal.py",
+      "line": 778,
+      "url": "https://github.com/pytest-dev/pytest/pull/14670#discussion_r4176779882",
+      "body": "why switch from nodeid to python object id ",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "A question about switching from node ids to object ids. It hints at a risk but does not assert a problem, and questions are not_issue by the labelling rules."
+    }
+  ]
+}
