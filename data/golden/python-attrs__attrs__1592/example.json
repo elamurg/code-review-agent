@@ -1,0 +1,21 @@
+{
+  "repo": "python-attrs/attrs",
+  "number": 1592,
+  "title": "Make on_setattr hooks accept generators",
+  "url": "https://github.com/python-attrs/attrs/pull/1592",
+  "base_sha": "79fb1645a17118666144ead131a88fdc8d8cd59f",
+  "head_sha": "b002d610a8e616b01b0d79e276febe43c4dcf7bf",
+  "comments": [
+    {
+      "id": 3609334566,
+      "author": "webknjaz",
+      "path": "changelog.d/1592.change.md",
+      "line": 1,
+      "url": "https://github.com/python-attrs/attrs/pull/1592#discussion_r3609334566",
+      "body": "I think this should be linkable like so\n```suggestion\n{func}`attrs.setters.pipe` now rejects generator functions.\n```\n*(https://webknjaz.github.io/intersphinx-untangled/www.attrs.org/)*",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog cross-reference markup."
+    }
+  ]
+}

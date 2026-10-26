@@ -1,0 +1,203 @@
+diff --git a/news/14347.bugfix.rst b/news/14347.bugfix.rst
+new file mode 100644
+index 0000000000..81c857ccbf
+--- /dev/null
++++ b/news/14347.bugfix.rst
+@@ -0,0 +1 @@
++Reject extra arguments to ``pip config edit`` instead of silently ignoring them.
+diff --git a/src/pip/_internal/commands/configuration.py b/src/pip/_internal/commands/configuration.py
+index 4fa860ff9b..dfc4579c84 100644
+--- a/src/pip/_internal/commands/configuration.py
++++ b/src/pip/_internal/commands/configuration.py
+@@ -1,11 +1,11 @@
+ from __future__ import annotations
+ 
++import inspect
+ import logging
+ import os
+ import subprocess
+ from collections.abc import Callable
+ from optparse import Values
+-from typing import Any
+ 
+ from pip._internal.cli.base_command import Command
+ from pip._internal.cli.status_codes import ERROR, SUCCESS
+@@ -22,6 +22,30 @@
+ logger = logging.getLogger(__name__)
+ 
+ 
++def _config_handler(
++    name: str, handler: Callable[..., None]
++) -> Callable[[Values, list[str]], None]:
++    """Adapt a configuration action's positional parameters to CLI arguments."""
++    signature = inspect.signature(handler)
++    # These are bound methods: only the options parameter precedes CLI arguments.
++    arguments = list(signature.parameters)[1:]
++    example = " ".join([name, *(f"[{argument}]" for argument in arguments)])
++
++    def invoke(options: Values, args: list[str]) -> None:
++        try:
++            signature.bind(options, *args)
++        except TypeError:
++            raise PipError(
++                f"Got unexpected number of arguments, expected {len(arguments)}. "
++                f'(example: "{get_prog()} config {example}")'
++            ) from None
++
++        # TypeErrors raised by the action itself are programming errors.
++        handler(options, *args)
++
++    return invoke
++
++
+ class ConfigurationCommand(Command):
+     """
+     Manage local and global configuration.
+@@ -97,7 +121,7 @@ def add_options(self) -> None:
+         self.parser.insert_option_group(0, self.cmd_opts)
+ 
+     def handler_map(self) -> dict[str, Callable[[Values, list[str]], None]]:
+-        return {
++        handlers: dict[str, Callable[..., None]] = {
+             "list": self.list_values,
+             "edit": self.open_in_editor,
+             "get": self.get_name,
+@@ -106,6 +130,10 @@ def handler_map(self) -> dict[str, Callable[[Values, list[str]], None]]:
+             "debug": self.list_config_values,
+         }
+ 
++        return {
++            name: _config_handler(name, handler) for name, handler in handlers.items()
++        }
++
+     def run(self, options: Values, args: list[str]) -> int:
+         handler_map = self.handler_map()
+ 
+@@ -174,34 +202,28 @@ def _determine_file(self, options: Values, need_value: bool) -> Kind | None:
+             "(--user, --site, --global) to perform."
+         )
+ 
+-    def list_values(self, options: Values, args: list[str]) -> None:
+-        self._get_n_args(args, "list", n=0)
+-
++    def list_values(self, options: Values) -> None:
+         for key, value in sorted(self.configuration.items()):
+             for key, value in sorted(value.items()):
+                 write_output("%s=%r", key, value)
+ 
+-    def get_name(self, options: Values, args: list[str]) -> None:
+-        key = self._get_n_args(args, "get [name]", n=1)
+-        value = self.configuration.get_value(key)
++    def get_name(self, options: Values, name: str) -> None:
++        value = self.configuration.get_value(name)
+ 
+         write_output("%s", value)
+ 
+-    def set_name_value(self, options: Values, args: list[str]) -> None:
+-        key, value = self._get_n_args(args, "set [name] [value]", n=2)
+-        self.configuration.set_value(key, value)
++    def set_name_value(self, options: Values, name: str, value: str) -> None:
++        self.configuration.set_value(name, value)
+ 
+         self._save_configuration()
+ 
+-    def unset_name(self, options: Values, args: list[str]) -> None:
+-        key = self._get_n_args(args, "unset [name]", n=1)
+-        self.configuration.unset_value(key)
++    def unset_name(self, options: Values, name: str) -> None:
++        self.configuration.unset_value(name)
+ 
+         self._save_configuration()
+ 
+-    def list_config_values(self, options: Values, args: list[str]) -> None:
++    def list_config_values(self, options: Values) -> None:
+         """List config key-value pairs across different config files"""
+-        self._get_n_args(args, "debug", n=0)
+ 
+         self.print_env_var_values()
+         # Iterate over config files and print if they exist, and the
+@@ -231,7 +253,7 @@ def print_env_var_values(self) -> None:
+                 env_var = f"PIP_{key.upper()}"
+                 write_output("%s=%r", env_var, value)
+ 
+-    def open_in_editor(self, options: Values, args: list[str]) -> None:
++    def open_in_editor(self, options: Values) -> None:
+         editor = self._determine_editor(options)
+ 
+         fname = self.configuration.get_file_to_edit()
+@@ -253,20 +275,6 @@ def open_in_editor(self, options: Values, args: list[str]) -> None:
+         except subprocess.CalledProcessError as e:
+             raise PipError(f"Editor Subprocess exited with exit code {e.returncode}")
+ 
+-    def _get_n_args(self, args: list[str], example: str, n: int) -> Any:
+-        """Helper to make sure the command got the right number of arguments"""
+-        if len(args) != n:
+-            msg = (
+-                f"Got unexpected number of arguments, expected {n}. "
+-                f'(example: "{get_prog()} config {example}")'
+-            )
+-            raise PipError(msg)
+-
+-        if n == 1:
+-            return args[0]
+-        else:
+-            return args
+-
+     def _save_configuration(self) -> None:
+         # We successfully ran a modifying command. Need to save the
+         # configuration.
+diff --git a/tests/unit/test_command_config.py b/tests/unit/test_command_config.py
+new file mode 100644
+index 0000000000..55128ce8c5
+--- /dev/null
++++ b/tests/unit/test_command_config.py
+@@ -0,0 +1,49 @@
++from optparse import Values
++
++import pytest
++
++from pip._internal.cli.status_codes import ERROR
++from pip._internal.commands.configuration import ConfigurationCommand, _config_handler
++
++
++@pytest.mark.parametrize(
++    "action,arguments,expected",
++    [
++        ("list", ["extra"], 0),
++        ("edit", ["extra"], 0),
++        ("debug", ["extra"], 0),
++        ("get", [], 1),
++        ("get", ["global.key", "extra"], 1),
++        ("set", ["global.key"], 2),
++        ("set", ["global.key", "value", "extra"], 2),
++        ("unset", [], 1),
++        ("unset", ["global.key", "extra"], 1),
++    ],
++)
++def test_config_action_rejects_wrong_argument_count(
++    action: str,
++    arguments: list[str],
++    expected: int,
++    monkeypatch: pytest.MonkeyPatch,
++    caplog: pytest.LogCaptureFixture,
++) -> None:
++    def launch_editor(*args: object, **kwargs: object) -> None:
++        pytest.fail("The editor must not run for invalid arguments")
++
++    monkeypatch.setattr("subprocess.check_call", launch_editor)
++    command = ConfigurationCommand(name="config", summary="Manage configuration")
++    options, args = command.parse_args(
++        ["--isolated", "--editor=unused", action, *arguments]
++    )
++
++    assert command.run(options, args) == ERROR
++    assert f"expected {expected}." in caplog.text
++
++
++def test_config_handler_preserves_programming_errors() -> None:
++    def handler(options: Values, name: str) -> None:
++        raise TypeError("An error inside the handler")
++
++    invoke = _config_handler("get", handler)
++    with pytest.raises(TypeError, match="An error inside the handler"):
++        invoke(Values(), ["global.key"])

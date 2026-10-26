@@ -1,0 +1,21 @@
+{
+  "repo": "pytest-dev/pytest",
+  "number": 15040,
+  "title": "Mark editable-installed plugins for assertion rewriting",
+  "url": "https://github.com/pytest-dev/pytest/pull/15040",
+  "base_sha": "affb9c4cdc729da46c03b0de2ec17ab3e31c1e65",
+  "head_sha": "c7297cb3f7b3ece3931451a11562bd82971a53a8",
+  "comments": [
+    {
+      "id": 4025551922,
+      "author": "RonnyPfannschmidt",
+      "path": "src/_pytest/config/__init__.py",
+      "line": 1516,
+      "url": "https://github.com/pytest-dev/pytest/pull/15040#discussion_r4025551922",
+      "body": "potential edge-case - this might mark all of a set of namespace packages intead of just the one with the plugin\n\ni'like to see this validated, but i recon its pretty tricky to create the conditions",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Edge case: taking the top-level package of each entry point marks every package in a shared namespace for assertion rewriting, not just the plugin."
+    }
+  ]
+}

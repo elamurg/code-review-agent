@@ -1,0 +1,9 @@
+{
+  "repo": "python-attrs/attrs",
+  "number": 1636,
+  "title": "Improve astuple performance for nested atomic sequences",
+  "url": "https://github.com/python-attrs/attrs/pull/1636",
+  "base_sha": "0a08cee06960e415f735dec4cf2fb91d669e2433",
+  "head_sha": "ce52bb2e1332f861f30c2c23d5e772c563832116",
+  "comments": []
+}

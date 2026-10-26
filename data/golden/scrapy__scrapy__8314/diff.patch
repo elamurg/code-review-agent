@@ -1,0 +1,75 @@
+diff --git a/docs/topics/settings.rst b/docs/topics/settings.rst
+index afa587fb391..b96ac5f4ed3 100644
+--- a/docs/topics/settings.rst
++++ b/docs/topics/settings.rst
+@@ -2218,6 +2218,10 @@ Default:
+         "scrapy.contracts.default.UrlContract": 1,
+         "scrapy.contracts.default.CallbackKeywordArgumentsContract": 1,
+         "scrapy.contracts.default.MetadataContract": 1,
++        "scrapy.contracts.default.MethodContract": 1,
++        "scrapy.contracts.default.BodyContract": 1,
++        "scrapy.contracts.default.HeaderContract": 1,
++        "scrapy.contracts.default.CookieContract": 1,
+         "scrapy.contracts.default.ReturnsContract": 2,
+         "scrapy.contracts.default.ScrapesContract": 3,
+     }
+diff --git a/tests/test_settings/__init__.py b/tests/test_settings/__init__.py
+index 4a175c067dc..e5bb8e966ce 100644
+--- a/tests/test_settings/__init__.py
++++ b/tests/test_settings/__init__.py
+@@ -3,6 +3,8 @@
+ 
+ import logging
+ import re
++import textwrap
++from pathlib import Path
+ from typing import Any
+ from unittest import mock
+ 
+@@ -774,6 +776,46 @@ def test_default_settings_all():
+     )
+ 
+ 
++@pytest.mark.parametrize(
++    "name",
++    [
++        "DEFAULT_REQUEST_HEADERS",
++        "DOWNLOADER_MIDDLEWARES_BASE",
++        "DOWNLOAD_HANDLERS_BASE",
++        "EXTENSIONS_BASE",
++        "FEED_EXPORTERS_BASE",
++        "FEED_STORAGES_BASE",
++        "LOG_VERSIONS",
++        "RETRY_EXCEPTIONS",
++        "RETRY_HTTP_CODES",
++        "SPIDER_CONTRACTS_BASE",
++        "SPIDER_MIDDLEWARES_BASE",
++    ],
++)
++def test_documented_default(name: str) -> None:
++    # In the section of the setting, captures either the inline literal of
++    # "Default: ``...``" or the indented block that follows "Default::" or
++    # "Default:" and a code-block directive.
++    pattern = re.compile(
++        rf"^\.\. setting:: {name}\n"
++        r"(?:(?!^\.\. setting::).)*?"
++        r"^Default:(?: ``([^`\n]+)``|(?::|\n\n\.\. code-block:: python)\n\n"
++        r"((?: {4}[^\n]*\n|\n)+))",
++        re.DOTALL | re.MULTILINE,
++    )
++    docs_dir = Path(__file__).parents[2] / "docs"
++    matches = [
++        match
++        for path in docs_dir.glob("**/*.rst")
++        if (match := pattern.search(path.read_text(encoding="utf-8")))
++    ]
++    assert len(matches) == 1
++    inline, block = matches[0].groups()
++    # plain eval() because of OSError in RETRY_EXCEPTIONS
++    documented = eval(inline or textwrap.dedent(block), {})
++    assert documented == getattr(scrapy_default_settings, name)
++
++
+ def test_deprecated_dns_resolver_setting():
+     settings = Settings()
+     with pytest.warns(

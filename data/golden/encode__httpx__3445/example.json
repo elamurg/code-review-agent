@@ -1,0 +1,21 @@
+{
+  "repo": "encode/httpx",
+  "number": 3445,
+  "title": "Version 0.28.1",
+  "url": "https://github.com/encode/httpx/pull/3445",
+  "base_sha": "89599a9541af14bcf906fc4ed58ccbdf403802ba",
+  "head_sha": "d8f67ce08c0364a6f4b73ca66340c4381388bf1f",
+  "comments": [
+    {
+      "id": 1873430245,
+      "author": "zanieb",
+      "path": "CHANGELOG.md",
+      "line": 7,
+      "url": "https://github.com/encode/httpx/pull/3445#discussion_r1873430245",
+      "body": "(6 now)",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Release date in the changelog; documentation only."
+    }
+  ]
+}

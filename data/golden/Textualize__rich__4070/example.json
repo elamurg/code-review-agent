@@ -1,0 +1,43 @@
+{
+  "repo": "Textualize/rich",
+  "number": 4070,
+  "title": "perf: reduce Console and RichHandler import time by deferring unused imports",
+  "url": "https://github.com/Textualize/rich/pull/4070",
+  "base_sha": "fc41075a3206d2a5fd846c6f41c4d2becab814fa",
+  "head_sha": "63d3200199f6d4a01268d71f98f27dbe416ee268",
+  "comments": [
+    {
+      "id": 3067345022,
+      "author": "willmcgugan",
+      "path": "rich/console.py",
+      "line": 1899,
+      "url": "https://github.com/Textualize/rich/pull/4070#discussion_r3067345022",
+      "body": "We can't use `sys._getframe`, give it is private, and the docs say this:\n\n> CPython implementation detail: This function should be used for internal and specialized purposes only. It is not guaranteed to exist in all implementations of Python.\n\nWhat I'd suggest is making `currentframe` default to None, and do the import inside this method.\n\nI think the only reason it is exposed is for tests.",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Defaults to sys._getframe, a CPython implementation detail that is not guaranteed on other Python implementations: a portability bug."
+    },
+    {
+      "id": 3067347510,
+      "author": "willmcgugan",
+      "path": "rich/console.py",
+      "line": 1524,
+      "url": "https://github.com/Textualize/rich/pull/4070#discussion_r3067347510",
+      "body": "Why import them with al alternate name?",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Question about an import alias; naming preference."
+    },
+    {
+      "id": 3067350819,
+      "author": "willmcgugan",
+      "path": "CHANGELOG.md",
+      "line": 8,
+      "url": "https://github.com/Textualize/rich/pull/4070#discussion_r3067350819",
+      "body": "These changes aren't user facing. I don't think we need to list them all.\n\nMaybe condense them in to one entry. \"improved import time by lazy loading modules\"",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog scope and wording."
+    }
+  ]
+}

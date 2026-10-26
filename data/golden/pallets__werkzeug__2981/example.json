@@ -1,0 +1,54 @@
+{
+  "repo": "pallets/werkzeug",
+  "number": 2981,
+  "title": "more cache-control cleanup",
+  "url": "https://github.com/pallets/werkzeug/pull/2981",
+  "base_sha": "1eb7ada4dcce1667e0964cb1bc122de3f1ae0279",
+  "head_sha": "e3a50c9ac130658e15bc8e8a4555a58379006cba",
+  "comments": [
+    {
+      "id": 1824308155,
+      "author": "RazerM",
+      "path": "src/werkzeug/datastructures/cache_control.py",
+      "line": 178,
+      "url": "https://github.com/pallets/werkzeug/pull/2981#discussion_r1824308155",
+      "body": "It returned `*` when *present*:\r\n\r\n3.0.6:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).no_cache is None\r\n>>> assert parse_cache_control_header(\"no-cache\", cls=RequestCacheControl).no_cache == '*'\r\n```\r\n\r\nmain:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).no_cache is False\r\n>>> assert parse_cache_control_header(\"no-cache\", cls=RequestCacheControl).no_cache is True\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "The versionchanged note misstates the old behaviour. Documentation accuracy, not a code defect."
+    },
+    {
+      "id": 1824316427,
+      "author": "RazerM",
+      "path": "src/werkzeug/datastructures/cache_control.py",
+      "line": 174,
+      "url": "https://github.com/pallets/werkzeug/pull/2981#discussion_r1824316427",
+      "body": "It returned `-1` when *present*.\r\n\r\n3.0.6:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).max_age is None\r\n>>> assert parse_cache_control_header(\"max-age\", cls=RequestCacheControl).max_age == -1\r\n>>> assert parse_cache_control_header(\"max-age=0\", cls=RequestCacheControl).max_age == 0\r\n```\r\n\r\nmain:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).max_age is None\r\n>>> assert parse_cache_control_header(\"max-age\", cls=RequestCacheControl).max_age is None\r\n>>> assert parse_cache_control_header(\"max-age=0\", cls=RequestCacheControl).max_age == 0\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "The versionchanged note misstates the old behaviour. Documentation accuracy, not a code defect."
+    },
+    {
+      "id": 1824319738,
+      "author": "RazerM",
+      "path": "src/werkzeug/datastructures/cache_control.py",
+      "line": 190,
+      "url": "https://github.com/pallets/werkzeug/pull/2981#discussion_r1824319738",
+      "body": "It returned `*` when *present*.\r\n\r\n3.0.6:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).min_fresh is None\r\n>>> assert parse_cache_control_header(\"min-fresh\", cls=RequestCacheControl).min_fresh == '*'\r\n>>> assert parse_cache_control_header(\"min-fresh=1\", cls=RequestCacheControl).min_fresh == 1\r\n```\r\n\r\nmain:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=RequestCacheControl).min_fresh is None\r\n>>> assert parse_cache_control_header(\"min-fresh\", cls=RequestCacheControl).min_fresh is None\r\n>>> assert parse_cache_control_header(\"min-fresh=1\", cls=RequestCacheControl).min_fresh == 1\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "The versionchanged note misstates the old behaviour. Documentation accuracy, not a code defect."
+    },
+    {
+      "id": 1824344507,
+      "author": "RazerM",
+      "path": "src/werkzeug/datastructures/cache_control.py",
+      "line": 245,
+      "url": "https://github.com/pallets/werkzeug/pull/2981#discussion_r1824344507",
+      "body": "It returned `*` when *present* without an argument. It should not be bool since arguments [are permitted](https://httpwg.org/specs/rfc9111.html#cache-response-directive.private):\r\n\r\n3.0.6:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=ResponseCacheControl).private is None\r\n>>> assert parse_cache_control_header(\"private\", cls=ResponseCacheControl).private == '*'\r\n>>> assert parse_cache_control_header('private=\"Set-Cookie, Authorization\"', cls=ResponseCacheControl).private == 'Set-Cookie, Authorization'\r\n```\r\n\r\nmain:\r\n```python\r\n>>> assert parse_cache_control_header(\"\", cls=ResponseCacheControl).private is False\r\n>>> assert parse_cache_control_header(\"private\", cls=ResponseCacheControl).private is True\r\n>>> cc = parse_cache_control_header('private=\"Set-Cookie, Authorization\"', cls=ResponseCacheControl)\r\n>>> assert cc.private == 'Set-Cookie, Authorization', f\"{cc.private=}\"\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 1, in <module>\r\nAssertionError: cc.private=True\r\n```",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Behaviour bug: making `private` a boolean drops its permitted field-name argument (RFC 9111), so valid headers lose information."
+    }
+  ]
+}

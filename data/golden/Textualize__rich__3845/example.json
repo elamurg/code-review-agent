@@ -1,0 +1,21 @@
+{
+  "repo": "Textualize/rich",
+  "number": 3845,
+  "title": "Use faster generator for link IDs",
+  "url": "https://github.com/Textualize/rich/pull/3845",
+  "base_sha": "fc41075a3206d2a5fd846c6f41c4d2becab814fa",
+  "head_sha": "c234c0afb93108a5d530d1091123cb68bd6e41c9",
+  "comments": [
+    {
+      "id": 2720952894,
+      "author": "willmcgugan",
+      "path": "rich/style.py",
+      "line": 22,
+      "url": "https://github.com/Textualize/rich/pull/3845#discussion_r2720952894",
+      "body": "Why round down, then shift right by 4? What does that achieve?\n\nIf two instances are started within a second of each other, then they will produce the same IDs, won't they?\n\nHow about we get more granularity out of the time, and add a random element? Something like this:\n\n```python\nint(time() * 65536 + randint(0, 999999))\n```",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Link IDs seeded from whole seconds collide when two processes start within the same second, so different links can share an ID."
+    }
+  ]
+}

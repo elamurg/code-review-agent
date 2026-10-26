@@ -1,0 +1,21 @@
+{
+  "repo": "psf/black",
+  "number": 5494,
+  "title": "Fix module docstring last_line_length when docstring ends with newline",
+  "url": "https://github.com/psf/black/pull/5494",
+  "base_sha": "eb8835829969f82c2567119f528b188769f3ac6d",
+  "head_sha": "8d824c777863a1a88d0b2ab98fe4b8413d4ad51d",
+  "comments": [
+    {
+      "id": 4209432363,
+      "author": "cobaltt7",
+      "path": "tests/test_black.py",
+      "line": 2639,
+      "url": "https://github.com/psf/black/pull/5494#discussion_r4209432363",
+      "body": "This should be a test case file.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Test organisation convention (use a test case file)."
+    }
+  ]
+}

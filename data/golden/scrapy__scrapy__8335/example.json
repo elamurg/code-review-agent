@@ -1,0 +1,21 @@
+{
+  "repo": "scrapy/scrapy",
+  "number": 8335,
+  "title": "Simplify DownloaderAwarePriorityQueue._next_slot()",
+  "url": "https://github.com/scrapy/scrapy/pull/8335",
+  "base_sha": "fbfc89ae7b72531a97fb4ef6d65ef3af392aa45c",
+  "head_sha": "b7567106d7aef12a4fa674902701e5bc8f56b9e6",
+  "comments": [
+    {
+      "id": 4291706422,
+      "author": "wRAR",
+      "path": "scrapy/pqueues.py",
+      "line": 35,
+      "url": "https://github.com/scrapy/scrapy/pull/8335#discussion_r4291706422",
+      "body": "This looks like a conflict resolution error, `\"utf8\"` is not needed here.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Redundant argument left by a merge ('utf8' is the default); no behavioural effect."
+    }
+  ]
+}

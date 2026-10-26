@@ -1,0 +1,32 @@
+{
+  "repo": "pallets/click",
+  "number": 3780,
+  "title": "Add FAQ entry about `edit()` returning immediately",
+  "url": "https://github.com/pallets/click/pull/3780",
+  "base_sha": "420c8fb44eeadb537cae69d2fee3796e808558dd",
+  "head_sha": "e03ce61e1d0fdbaf4019e61d18612847be87a593",
+  "comments": [
+    {
+      "id": 3818202384,
+      "author": "Rowlando13",
+      "path": "docs/faqs.md",
+      "line": 42,
+      "url": "https://github.com/pallets/click/pull/3780#discussion_r3818202384",
+      "body": "This needs to be a bit more obvious. Maybe: edit utility fails to open vscode",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "FAQ heading wording; documentation only."
+    },
+    {
+      "id": 3818210495,
+      "author": "Rowlando13",
+      "path": "docs/faqs.md",
+      "line": 46,
+      "url": "https://github.com/pallets/click/pull/3780#discussion_r3818210495",
+      "body": "But Vscode(and some other editors) returns ",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "FAQ sentence wording; documentation only."
+    }
+  ]
+}

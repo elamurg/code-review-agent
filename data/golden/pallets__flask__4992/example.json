@@ -1,0 +1,32 @@
+{
+  "repo": "pallets/flask",
+  "number": 4992,
+  "title": "add file mode parameter to handle .toml config files in flask.Config.…",
+  "url": "https://github.com/pallets/flask/pull/4992",
+  "base_sha": "4c288bc97ea371817199908d0d9b12de9dae327e",
+  "head_sha": "520d949c62771fa01aa3985f0405691b7943825c",
+  "comments": [
+    {
+      "id": 1114374958,
+      "author": "RonnyPfannschmidt",
+      "path": "src/flask/config.py",
+      "line": 249,
+      "url": "https://github.com/pallets/flask/pull/4992#discussion_r1114374958",
+      "body": "this parameter is a absolute lie - when true you take away the text and drop a buffer\r\n\r\nthis should be called `binary`\r\n\r\nand it should use the open mode ",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "The new parameter's meaning is inverted: text=True actually switches to the binary buffer, so the API lies to its callers."
+    },
+    {
+      "id": 1114375396,
+      "author": "davidism",
+      "path": "src/flask/config.py",
+      "line": 270,
+      "url": "https://github.com/pallets/flask/pull/4992#discussion_r1114375396",
+      "body": "This should change what `open` does, not try to access `buffer` after the fact (someone else pointed out this wasn't documented as a public API).\r\n\r\nAlso, it's backwards, `text=True`, the default, should result in a text file, `False` should result in a binary file.",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Reaches for the undocumented f.buffer after opening in text mode instead of choosing the open() mode, and the flag is backwards."
+    }
+  ]
+}

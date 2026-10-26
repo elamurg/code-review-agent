@@ -1,0 +1,21 @@
+{
+  "repo": "pallets/click",
+  "number": 3805,
+  "title": "Fix `copy`, `deepcopy` and `pickle` of `Sentinel` members",
+  "url": "https://github.com/pallets/click/pull/3805",
+  "base_sha": "3cbcf9b11546f4cf10b36d3e2e531733ba6fe001",
+  "head_sha": "83d425ade9c44e89755017640c2e0189b33ba1d8",
+  "comments": [
+    {
+      "id": 3885621775,
+      "author": "Rowlando13",
+      "path": "CHANGES.md",
+      "line": 6,
+      "url": "https://github.com/pallets/click/pull/3805#discussion_r3885621775",
+      "body": "Needs a pr number. ",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog entry missing a PR number; process, not code."
+    }
+  ]
+}

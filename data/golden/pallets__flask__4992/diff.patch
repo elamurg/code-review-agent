@@ -1,0 +1,76 @@
+diff --git a/src/flask/config.py b/src/flask/config.py
+index d4fc310fe3..88f888b17d 100644
+--- a/src/flask/config.py
++++ b/src/flask/config.py
+@@ -234,6 +234,7 @@ def from_file(
+         filename: str,
+         load: t.Callable[[t.IO[t.Any]], t.Mapping],
+         silent: bool = False,
++        text: bool = False,
+     ) -> bool:
+         """Update the values in the config from a file that is loaded
+         using the ``load`` parameter. The loaded data is passed to the
+@@ -245,7 +246,7 @@ def from_file(
+             app.config.from_file("config.json", load=json.load)
+ 
+             import toml
+-            app.config.from_file("config.toml", load=toml.load)
++            app.config.from_file("config.toml", load=toml.load, text=True)
+ 
+         :param filename: The path to the data file. This can be an
+             absolute path or relative to the config root path.
+@@ -256,12 +257,18 @@ def from_file(
+         :param silent: Ignore the file if it doesn't exist.
+         :return: ``True`` if the file was loaded successfully.
+ 
++        .. versionchanged:: 2.3.0
++            Added optional boolean argument "text" (False by default).
++            You can now use .toml config file by specifying "text=True".
++
+         .. versionadded:: 2.0
+         """
+         filename = os.path.join(self.root_path, filename)
+ 
+         try:
+             with open(filename) as f:
++                if text:
++                    f = f.buffer
+                 obj = load(f)
+         except OSError as e:
+             if silent and e.errno in (errno.ENOENT, errno.EISDIR):
+diff --git a/tests/static/config.toml b/tests/static/config.toml
+new file mode 100644
+index 0000000000..64acdbdd09
+--- /dev/null
++++ b/tests/static/config.toml
+@@ -0,0 +1,2 @@
++TEST_KEY="foo"
++SECRET_KEY="config"
+diff --git a/tests/test_config.py b/tests/test_config.py
+index 76c5d2721a..664c9d9ff6 100644
+--- a/tests/test_config.py
++++ b/tests/test_config.py
+@@ -1,6 +1,7 @@
+ import json
+ import os
+ import textwrap
++import tomllib
+ 
+ import pytest
+ 
+@@ -37,6 +38,15 @@ def test_config_from_file():
+     common_object_test(app)
+ 
+ 
++def test_config_toml_from_file():
++    app = flask.Flask(__name__)
++    current_dir = os.path.dirname(os.path.abspath(__file__))
++    app.config.from_file(
++        os.path.join(current_dir, "static", "config.toml"), tomllib.load, text=True
++    )
++    common_object_test(app)
++
++
+ def test_from_prefixed_env(monkeypatch):
+     monkeypatch.setenv("FLASK_STRING", "value")
+     monkeypatch.setenv("FLASK_BOOL", "true")

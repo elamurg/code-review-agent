@@ -1,0 +1,21 @@
+{
+  "repo": "pallets/werkzeug",
+  "number": 3166,
+  "title": "use base64 instead of hex digest",
+  "url": "https://github.com/pallets/werkzeug/pull/3166",
+  "base_sha": "cd8be56a8a3cd70ed359cfaeeee6905933b1e07a",
+  "head_sha": "b70b7838af4d1446ee718dd71763b36e5d62a1cb",
+  "comments": [
+    {
+      "id": 3174836155,
+      "author": "ThiefMaster",
+      "path": "src/werkzeug/http.py",
+      "line": 1074,
+      "url": "https://github.com/pallets/werkzeug/pull/3166#discussion_r3174836155",
+      "body": "Since it doesn't need to be decoded, I'd strip the ugly `=` padding",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Output format preference (strip base64 padding); nothing is wrong."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "repo": "psf/black",
+  "number": 5487,
+  "title": "Keep an ignored encoding declaration off the first two lines",
+  "url": "https://github.com/psf/black/pull/5487",
+  "base_sha": "a3cb9e123ceab4f0fcab4980dd6c5f9439646794",
+  "head_sha": "1b5ba60754b0b713476dd599a9a5736546528293",
+  "comments": [
+    {
+      "id": 4198037490,
+      "author": "cobaltt7",
+      "path": "CHANGES.md",
+      "line": 27,
+      "url": "https://github.com/psf/black/pull/5487#discussion_r4198037490",
+      "body": "```suggestion\n- Prevent moving an encoding declaration (for example `# -*- coding: latin-1 -*-`) onto\n  the first two lines of a file (#5487)\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog wording suggestion."
+    }
+  ]
+}

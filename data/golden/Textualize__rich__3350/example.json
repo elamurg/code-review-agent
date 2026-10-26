@@ -1,0 +1,21 @@
+{
+  "repo": "Textualize/rich",
+  "number": 3350,
+  "title": "Fix warning in test suite",
+  "url": "https://github.com/Textualize/rich/pull/3350",
+  "base_sha": "245649b3e2d6e16aef315d95904df26bee7b8550",
+  "head_sha": "eb357884ad7fc677854396e107a1652f3c8d4aa3",
+  "comments": [
+    {
+      "id": 1586317850,
+      "author": "willmcgugan",
+      "path": "tests/test_syntax.py",
+      "line": 23,
+      "url": "https://github.com/Textualize/rich/pull/3350#discussion_r1586317850",
+      "body": "This doesn't look right!",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "The reviewer asserts the new version guard around the import is wrong; a broken conditional import is a code defect, not wording."
+    }
+  ]
+}

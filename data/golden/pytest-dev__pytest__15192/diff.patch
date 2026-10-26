@@ -1,0 +1,19 @@
+diff --git a/changelog/15190.contrib.rst b/changelog/15190.contrib.rst
+new file mode 100644
+index 00000000000..21e4a5a232d
+--- /dev/null
++++ b/changelog/15190.contrib.rst
+@@ -0,0 +1 @@
++Fixed the documentation build with Pluggy 1.7 by ignoring a reference to its undocumented ``DistFacade`` compatibility class.
+diff --git a/doc/en/conf.py b/doc/en/conf.py
+index 6b83eb13f48..803a5b2a982 100644
+--- a/doc/en/conf.py
++++ b/doc/en/conf.py
+@@ -94,6 +94,7 @@
+     ("py:class", "RewriteHook"),
+     # Undocumented third parties
+     ("py:class", "_tracing.TagTracerSub"),
++    ("py:class", "pluggy._compat.DistFacade"),
+     ("py:class", "warnings.WarningMessage"),
+     # Python 3.14+ exposes the C accelerator module name.
+     ("py:class", "_py_warnings.WarningMessage"),

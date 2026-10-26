@@ -1,0 +1,9 @@
+{
+  "repo": "psf/black",
+  "number": 5568,
+  "title": "Parse unpacking in a generator passed as the only call argument (PEP 798)",
+  "url": "https://github.com/psf/black/pull/5568",
+  "base_sha": "56a7ee682ada03e086f62d66ac01b752fbda21db",
+  "head_sha": "6eb6e7037b6fec33bb911cfbdd4a69b5efe2aa7c",
+  "comments": []
+}

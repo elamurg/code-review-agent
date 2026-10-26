@@ -1,0 +1,21 @@
+{
+  "repo": "encode/httpx",
+  "number": 3440,
+  "title": "Add test for request params behavior changes (#3364)",
+  "url": "https://github.com/encode/httpx/pull/3440",
+  "base_sha": "0cb7e5a2e736628e2f506d259fcf0d48cd2bde82",
+  "head_sha": "0e523ce35d64e1487d642d3e5e1518b3d5577bcc",
+  "comments": [
+    {
+      "id": 1867640677,
+      "author": "lovelydinosaur",
+      "path": "CHANGELOG.md",
+      "line": 31,
+      "url": "https://github.com/encode/httpx/pull/3440#discussion_r1867640677",
+      "body": "```suggestion\r\n* Bugfix: When passing `params={}`, always strictly update rather than merge with an existing querystring. (#3364)\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Changelog wording suggestion; no problem in the code."
+    }
+  ]
+}

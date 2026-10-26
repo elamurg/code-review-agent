@@ -1,0 +1,9 @@
+{
+  "repo": "pallets/click",
+  "number": 3884,
+  "title": "Fix `show_envvar` output for a sequence or an empty `envvar`",
+  "url": "https://github.com/pallets/click/pull/3884",
+  "base_sha": "bb695aaecdef95832d167fc1d508921745aa824e",
+  "head_sha": "c53d3732b98c764932e146c007146ad402acb229",
+  "comments": []
+}

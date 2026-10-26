@@ -1,0 +1,9 @@
+{
+  "repo": "pytest-dev/pytest",
+  "number": 15192,
+  "title": "Fix documentation build with Pluggy 1.7",
+  "url": "https://github.com/pytest-dev/pytest/pull/15192",
+  "base_sha": "c9c19f8e62c12834ad83193a1869cc82fe9c700e",
+  "head_sha": "0d6b61d889a66193b0e521fbf87145a7653259be",
+  "comments": []
+}

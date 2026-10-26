@@ -1,0 +1,21 @@
+{
+  "repo": "pallets/werkzeug",
+  "number": 3081,
+  "title": "Correct parsing up to a potential partial boundary",
+  "url": "https://github.com/pallets/werkzeug/pull/3081",
+  "base_sha": "b48878cf16dfca3c89ac58aca47ab1ecfcb71354",
+  "head_sha": "1049dd6b2a363e1ef302b4161c340fb8582f627a",
+  "comments": [
+    {
+      "id": 2694638804,
+      "author": "jayaddison",
+      "path": "src/werkzeug/sansio/multipart.py",
+      "line": 272,
+      "url": "https://github.com/pallets/werkzeug/pull/3081#discussion_r2694638804",
+      "body": "@pgjones @davidism nitpicky, but: I think `LR` was probably intended to be `LF` in this comment?\r\n\r\n```suggestion\r\n        # position of a LF or a CR, unless that position is more\r\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Typo in a code comment (LR for LF)."
+    }
+  ]
+}

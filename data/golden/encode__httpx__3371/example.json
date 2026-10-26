@@ -1,0 +1,21 @@
+{
+  "repo": "encode/httpx",
+  "number": 3371,
+  "title": "Review URL percent escaping sets, from whatwg.",
+  "url": "https://github.com/encode/httpx/pull/3371",
+  "base_sha": "489fef48ba8619c7604376165c7e8007398e1b5d",
+  "head_sha": "798954ec928bfaeee7ef8ed69a86f9d91892ddcd",
+  "comments": [
+    {
+      "id": 1895670033,
+      "author": "elupus",
+      "path": "tests/models/test_url.py",
+      "line": 620,
+      "url": "https://github.com/encode/httpx/pull/3371#discussion_r1895670033",
+      "body": "This looks weird. I could be wrong. But should the userinfo field contain partial escapes? The trialing % sign change here seem odd. \r\n\r\n",
+      "label": "issue",
+      "category": "correctness",
+      "rationale": "Questions an escaping result that leaves a partial percent-escape in userinfo, i.e. the behaviour under test looks wrong, not just its wording."
+    }
+  ]
+}

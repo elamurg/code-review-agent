@@ -1,0 +1,408 @@
+diff --git a/CHANGES.rst b/CHANGES.rst
+index 0a0616d57..4097365d4 100644
+--- a/CHANGES.rst
++++ b/CHANGES.rst
+@@ -12,12 +12,33 @@ Unreleased
+     error. :issue:`2964`
+ -   ``OrderedMultiDict`` and ``ImmutableOrderedMultiDict`` are deprecated.
+     Use ``MultiDict`` and ``ImmutableMultiDict`` instead. :issue:`2968`
++-   Behavior of properties on ``request.cache_control`` and
++    ``response.cache_control`` has been significantly adjusted.
++
++    -   Dict values are always ``str | None``. Setting properties will convert
++        the value to a string. Setting a property to ``False`` is equivalent to
++        setting it to ``None``. Getting typed properties will return ``None`` if
++        conversion raises ``ValueError``, rather than the string.  :issue:`2980`
++    -   ``max_age`` is ``None`` if not present, rather than ``-1``.
++        :issue:`2980`
++    -   ``no_cache`` is a boolean for requests, it is ``False`` instead of
++        ``"*"`` when not present. It remains a string for responses.
++        issue:`2980`
++    -   ``max_stale`` is an int, it is ``None`` instead of ``"*"`` if it is
++        present with no value. ``max_stale_any`` is a boolean indicating if
++        the property is present regardless of if it has a value. :issue:`2980`
++    -   ``no_transform`` is a boolean. Previously it was mistakenly always
++        ``None``. :issue:`2881`
++    -   ``min_fresh`` is ``None`` if not present instead of ``"*"``.
++        :issue:`2881`
++    -   ``private`` is a boolean, it is ``False`` instead of ``"*"`` when not
++        present. :issue:`2980`
++    -   Added the ``must_understand`` property. :issue:`2881`
++    -   Added the ``stale_while_revalidate``, and ``stale_if_error``
++        properties. :issue:`2948`
++    -   Type annotations more accurately reflect the values. :issue:`2881`
++
+ -   Support Cookie CHIPS (Partitioned Cookies). :issue:`2797`
+--   ``CacheControl.no_transform`` is a boolean when present. ``min_fresh`` is
+-    ``None`` when not present. Added the ``must_understand`` attribute. Fixed
+-    some typing issues on cache control. :issue:`2881`
+--   Add ``stale_while_revalidate`` and ``stale_if_error`` properties to
+-    ``ResponseCacheControl``. :issue:`2948`
+ -   Add 421 ``MisdirectedRequest`` HTTP exception. :issue:`2850`
+ -   Increase default work factor for PBKDF2 to 1,000,000 iterations.
+     :issue:`2969`
+diff --git a/docs/datastructures.rst b/docs/datastructures.rst
+index bd2c0d223..e70252534 100644
+--- a/docs/datastructures.rst
++++ b/docs/datastructures.rst
+@@ -93,11 +93,13 @@ HTTP Related
+ 
+ .. autoclass:: RequestCacheControl
+     :members:
+-    :inherited-members:
++    :inherited-members: ImmutableDictMixin, CallbackDict
++    :member-order: groupwise
+ 
+ .. autoclass:: ResponseCacheControl
+     :members:
+-    :inherited-members:
++    :inherited-members: CallbackDict
++    :member-order: groupwise
+ 
+ .. autoclass:: ETags
+    :members:
+diff --git a/src/werkzeug/datastructures/cache_control.py b/src/werkzeug/datastructures/cache_control.py
+index e185944b3..2171c4d7a 100644
+--- a/src/werkzeug/datastructures/cache_control.py
++++ b/src/werkzeug/datastructures/cache_control.py
+@@ -2,27 +2,58 @@
+ 
+ import collections.abc as cabc
+ import typing as t
++from inspect import cleandoc
+ 
+ from .mixins import ImmutableDictMixin
+ from .structures import CallbackDict
+ 
+ 
+-def cache_control_property(key: str, empty: t.Any, type: type[t.Any] | None) -> t.Any:
++def cache_control_property(
++    key: str, empty: t.Any, type: type[t.Any] | None, *, doc: str | None = None
++) -> t.Any:
+     """Return a new property object for a cache header. Useful if you
+     want to add support for a cache extension in a subclass.
+ 
++    :param key: The attribute name present in the parsed cache-control header dict.
++    :param empty: The value to use if the key is present without a value.
++    :param type: The type to convert the string value to instead of a string. If
++        conversion raises a ``ValueError``, the returned value is ``None``.
++    :param doc: The docstring for the property. If not given, it is generated
++        based on the other params.
++
++    .. versionchanged:: 3.1
++        Added the ``doc`` param.
++
+     .. versionchanged:: 2.0
+         Renamed from ``cache_property``.
+     """
++    if doc is None:
++        parts = [f"The ``{key}`` attribute."]
++
++        if type is bool:
++            parts.append("A ``bool``, either present or not.")
++        else:
++            if type is None:
++                parts.append("A ``str``,")
++            else:
++                parts.append(f"A ``{type.__name__}``,")
++
++            if empty is not None:
++                parts.append(f"``{empty!r}`` if present with no value,")
++
++            parts.append("or ``None`` if not present.")
++
++        doc = " ".join(parts)
++
+     return property(
+         lambda x: x._get_cache_value(key, empty, type),
+         lambda x, v: x._set_cache_value(key, v, type),
+         lambda x: x._del_cache_value(key),
+-        f"accessor for {key!r}",
++        doc=cleandoc(doc),
+     )
+ 
+ 
+-class _CacheControl(CallbackDict[str, t.Any]):
++class _CacheControl(CallbackDict[str, t.Optional[str]]):
+     """Subclass of a dict that stores values for a Cache-Control header.  It
+     has accessors for all the cache-control directives specified in RFC 2616.
+     The class does not differentiate between request and response directives.
+@@ -36,36 +67,25 @@ class _CacheControl(CallbackDict[str, t.Any]):
+     that class.
+ 
+     .. versionchanged:: 3.1
++        Dict values are always ``str | None``. Setting properties will
++        convert the value to a string. Setting a non-bool property to
++        ``False`` is equivalent to setting it to ``None``. Getting typed
++        properties will return ``None`` if conversion raises
++        ``ValueError``, rather than the string.
+ 
+-       ``no_transform`` is a boolean when present.
+-
+-    .. versionchanged:: 2.1.0
++    .. versionchanged:: 2.1
+         Setting int properties such as ``max_age`` will convert the
+         value to an int.
+ 
+     .. versionchanged:: 0.4
+-
+-       Setting `no_cache` or `private` to boolean `True` will set the implicit
+-       none-value which is ``*``:
+-
+-       >>> cc = ResponseCacheControl()
+-       >>> cc.no_cache = True
+-       >>> cc
+-       <ResponseCacheControl 'no-cache'>
+-       >>> cc.no_cache
+-       '*'
+-       >>> cc.no_cache = None
+-       >>> cc
+-       <ResponseCacheControl ''>
+-
+-       In versions before 0.5 the behavior documented here affected the now
+-       no longer existing `CacheControl` class.
++       Setting ``no_cache`` or ``private`` to ``True`` will set the
++       implicit value ``"*"``.
+     """
+ 
+-    no_cache: str | bool | None = cache_control_property("no-cache", "*", None)
+     no_store: bool = cache_control_property("no-store", None, bool)
+-    max_age: int | None = cache_control_property("max-age", -1, int)
++    max_age: int | None = cache_control_property("max-age", None, int)
+     no_transform: bool = cache_control_property("no-transform", None, bool)
++    stale_if_error: int | None = cache_control_property("stale-if-error", None, int)
+ 
+     def __init__(
+         self,
+@@ -81,17 +101,20 @@ def _get_cache_value(
+         """Used internally by the accessor properties."""
+         if type is bool:
+             return key in self
+-        if key in self:
+-            value = self[key]
+-            if value is None:
+-                return empty
+-            elif type is not None:
+-                try:
+-                    value = type(value)
+-                except ValueError:
+-                    pass
+-            return value
+-        return None
++
++        if key not in self:
++            return None
++
++        if (value := self[key]) is None:
++            return empty
++
++        if type is not None:
++            try:
++                value = type(value)
++            except ValueError:
++                return None
++
++        return value
+ 
+     def _set_cache_value(
+         self, key: str, value: t.Any, type: type[t.Any] | None
+@@ -102,16 +125,15 @@ def _set_cache_value(
+                 self[key] = None
+             else:
+                 self.pop(key, None)
++        elif value is None or value is False:
++            self.pop(key, None)
++        elif value is True:
++            self[key] = None
+         else:
+-            if value is None:
+-                self.pop(key, None)
+-            elif value is True:
+-                self[key] = None
+-            else:
+-                if type is not None:
+-                    self[key] = type(value)
+-                else:
+-                    self[key] = value
++            if type is not None:
++                value = type(value)
++
++            self[key] = str(value)
+ 
+     def _del_cache_value(self, key: str) -> None:
+         """Used internally by the accessor properties."""
+@@ -132,7 +154,7 @@ def __repr__(self) -> str:
+     cache_property = staticmethod(cache_control_property)
+ 
+ 
+-class RequestCacheControl(ImmutableDictMixin[str, t.Any], _CacheControl):  # type: ignore[misc]
++class RequestCacheControl(ImmutableDictMixin[str, t.Optional[str]], _CacheControl):  # type: ignore[misc]
+     """A cache control for requests.  This is immutable and gives access
+     to all the request-relevant cache control headers.
+ 
+@@ -142,21 +164,61 @@ class RequestCacheControl(ImmutableDictMixin[str, t.Any], _CacheControl):  # typ
+     for that class.
+ 
+     .. versionchanged:: 3.1
+-       ``no_transform`` is a boolean when present.
++        Dict values are always ``str | None``. Setting properties will
++        convert the value to a string. Setting a non-bool property to
++        ``False`` is equivalent to setting it to ``None``. Getting typed
++        properties will return ``None`` if conversion raises
++        ``ValueError``, rather than the string.
++
++    .. versionchanged:: 3.1
++       ``max_age`` is ``None`` if not present, rather than ``-1``.
++
++    .. versionchanged:: 3.1
++        ``no_cache`` is a boolean, it is ``False`` instead of ``"*"``
++        when not present.
++
++    .. versionchanged:: 3.1
++        ``max_stale`` is an int, it is ``None`` instead of ``"*"`` if it is
++        present with no value. ``max_stale_any`` is a boolean indicating if
++        the property is present regardless of if it has a value.
+ 
+     .. versionchanged:: 3.1
+-       ``min_fresh`` is ``None`` if a value is not provided for the attribute.
++       ``no_transform`` is a boolean. Previously it was mistakenly
++       always ``None``.
+ 
+-    .. versionchanged:: 2.1.0
++    .. versionchanged:: 3.1
++       ``min_fresh`` is ``None`` if not present instead of ``"*"``.
++
++    .. versionchanged:: 2.1
+         Setting int properties such as ``max_age`` will convert the
+         value to an int.
+ 
+     .. versionadded:: 0.5
+-       In previous versions a `CacheControl` class existed that was used
+-       both for request and response.
++        Response-only properties are not present on this request class.
+     """
+ 
+-    max_stale: str | int | None = cache_control_property("max-stale", "*", int)
++    no_cache: bool = cache_control_property("no-cache", None, bool)
++    max_stale: int | None = cache_control_property(
++        "max-stale",
++        None,
++        int,
++        doc="""The ``max-stale`` attribute if it has a value. A ``int``, or
++        ``None`` if not present or no value.
++
++        This attribute can also be present without a value. To check that, use
++        :attr:`max_stale_any`.
++        """,
++    )
++    max_stale_any: bool = cache_control_property(
++        "max-stale",
++        None,
++        bool,
++        doc="""The ``max-stale`` attribute presence regardless of value. A
++        ``bool``, either present or not.
++
++        To check the value of the attribute if present, use :attr:`max_stale`.
++        """,
++    )
+     min_fresh: int | None = cache_control_property("min-fresh", None, int)
+     only_if_cached: bool = cache_control_property("only-if-cached", None, bool)
+ 
+@@ -172,26 +234,38 @@ class ResponseCacheControl(_CacheControl):
+     for that class.
+ 
+     .. versionchanged:: 3.1
+-       ``no_transform`` is a boolean when present.
++        Dict values are always ``str | None``. Setting properties will
++        convert the value to a string. Setting a non-bool property to
++        ``False`` is equivalent to setting it to ``None``. Getting typed
++        properties will return ``None`` if conversion raises
++        ``ValueError``, rather than the string.
++
++    .. versionchanged:: 3.1
++        ``private`` is a boolean, it is ``False`` instead of ``"*"``
++        when not present.
++
++    .. versionchanged:: 3.1
++       ``no_transform`` is a boolean. Previously it was mistakenly always
++       ``None``.
+ 
+     .. versionchanged:: 3.1
+         Added the ``must_understand``, ``stale_while_revalidate``, and
+-        ``stale_if_error`` attributes.
++        ``stale_if_error`` properties.
+ 
+     .. versionchanged:: 2.1.1
+         ``s_maxage`` converts the value to an int.
+ 
+-    .. versionchanged:: 2.1.0
++    .. versionchanged:: 2.1
+         Setting int properties such as ``max_age`` will convert the
+         value to an int.
+ 
+     .. versionadded:: 0.5
+-       In previous versions a `CacheControl` class existed that was used
+-       both for request and response.
++       Request-only properties are not present on this response class.
+     """
+ 
++    no_cache: str | bool | None = cache_control_property("no-cache", "*", None)
+     public: bool = cache_control_property("public", None, bool)
+-    private: str | None = cache_control_property("private", "*", None)
++    private: bool = cache_control_property("private", None, bool)
+     must_revalidate: bool = cache_control_property("must-revalidate", None, bool)
+     proxy_revalidate: bool = cache_control_property("proxy-revalidate", None, bool)
+     s_maxage: int | None = cache_control_property("s-maxage", None, int)
+@@ -200,7 +274,6 @@ class ResponseCacheControl(_CacheControl):
+     stale_while_revalidate: int | None = cache_control_property(
+         "stale-while-revalidate", None, int
+     )
+-    stale_if_error: int | None = cache_control_property("stale-if-error", None, int)
+ 
+ 
+ # circular dependencies
+diff --git a/tests/test_datastructures.py b/tests/test_datastructures.py
+index 76a5530fc..51799722b 100644
+--- a/tests/test_datastructures.py
++++ b/tests/test_datastructures.py
+@@ -1000,7 +1000,7 @@ def test_set_none(self):
+         cc.no_cache = None
+         assert cc.no_cache is None
+         cc.no_cache = False
+-        assert cc.no_cache is False
++        assert cc.no_cache is None
+ 
+     def test_no_transform(self):
+         cc = ds.RequestCacheControl([("no-transform", None)])
+diff --git a/tests/test_http.py b/tests/test_http.py
+index 9febd0f0c..5c45b3dde 100644
+--- a/tests/test_http.py
++++ b/tests/test_http.py
+@@ -121,22 +121,22 @@ def test_dict_header(self, value, expect):
+     def test_cache_control_header(self):
+         cc = http.parse_cache_control_header("max-age=0, no-cache")
+         assert cc.max_age == 0
+-        assert cc.no_cache
++        assert cc.no_cache is True
+         cc = http.parse_cache_control_header(
+             'private, community="UCI"', None, datastructures.ResponseCacheControl
+         )
+-        assert cc.private
++        assert cc.private is True
+         assert cc["community"] == "UCI"
+ 
+         c = datastructures.ResponseCacheControl()
+         assert c.no_cache is None
+-        assert c.private is None
++        assert c.private is False
+         c.no_cache = True
+         assert c.no_cache == "*"
+         c.private = True
+-        assert c.private == "*"
++        assert c.private is True
+         del c.private
+-        assert c.private is None
++        assert c.private is False
+         # max_age is an int, other types are converted
+         c.max_age = 3.1
+         assert c.max_age == 3

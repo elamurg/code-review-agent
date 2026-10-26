@@ -1,0 +1,21 @@
+{
+  "repo": "python-attrs/attrs",
+  "number": 1463,
+  "title": "Improve performance of asdict in the common case",
+  "url": "https://github.com/python-attrs/attrs/pull/1463",
+  "base_sha": "57f0d5441c9deaac44aebbbf45e38e477651e4f2",
+  "head_sha": "b8706213f76668048c5616113df7f1d2e4297a30",
+  "comments": [
+    {
+      "id": 2311909920,
+      "author": "hynek",
+      "path": "tests/test_funcs.py",
+      "line": 71,
+      "url": "https://github.com/python-attrs/attrs/pull/1463#discussion_r2311909920",
+      "body": "This doesn't conform with our docstring standard and proves why it's important :)\n\nWhat exactly is tested here?  (c.f. https://hynek.me/articles/document-your-tests/ for more context)",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Test docstring standard; documentation of tests."
+    }
+  ]
+}

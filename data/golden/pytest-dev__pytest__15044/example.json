@@ -1,0 +1,21 @@
+{
+  "repo": "pytest-dev/pytest",
+  "number": 15044,
+  "title": "Warn when writing or closing a cache file fails",
+  "url": "https://github.com/pytest-dev/pytest/pull/15044",
+  "base_sha": "99ab2acccff15f757260a1e1fbb0d2a47fc01041",
+  "head_sha": "bc9685609e93521f8c3175a440391ae58920c550",
+  "comments": [
+    {
+      "id": 4033360082,
+      "author": "RonnyPfannschmidt",
+      "path": "src/_pytest/cacheprovider.py",
+      "line": 243,
+      "url": "https://github.com/pytest-dev/pytest/pull/15044#discussion_r4033360082",
+      "body": "Nitpick we now can use path.write_text\n\n",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Nitpick: path.write_text is shorter. Behaviour is the same."
+    }
+  ]
+}

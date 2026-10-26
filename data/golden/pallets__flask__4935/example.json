@@ -1,0 +1,32 @@
+{
+  "repo": "pallets/flask",
+  "number": 4935,
+  "title": "Fix subdomain inheritance for nested blueprints",
+  "url": "https://github.com/pallets/flask/pull/4935",
+  "base_sha": "fa1ee7066807c21256e90089731c548b313394d2",
+  "head_sha": "aa23376275025368fcd3f10c44f7ffc0d8c7139c",
+  "comments": [
+    {
+      "id": 1061700721,
+      "author": "davidism",
+      "path": "src/flask/blueprints.py",
+      "line": 361,
+      "url": "https://github.com/pallets/flask/pull/4935#discussion_r1061700721",
+      "body": "Should be `.` (period), not `,` (comma).",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Typo in a docstring directive (comma for period); documentation only."
+    },
+    {
+      "id": 1061701092,
+      "author": "davidism",
+      "path": "docs/blueprints.rst",
+      "line": 154,
+      "url": "https://github.com/pallets/flask/pull/4935#discussion_r1061701092",
+      "body": "Putting this in quotes would make it more distinct from the code.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Documentation formatting suggestion."
+    }
+  ]
+}

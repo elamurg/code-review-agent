@@ -1,0 +1,9 @@
+{
+  "repo": "encode/httpx",
+  "number": 3773,
+  "title": "Adapt test_response_decode_text_using_autodetect for chardet 6.0",
+  "url": "https://github.com/encode/httpx/pull/3773",
+  "base_sha": "ae1b9f66238f75ced3ced5e4485408435de10768",
+  "head_sha": "63e885394a629d194b0aa867e8fbf475cdec6521",
+  "comments": []
+}

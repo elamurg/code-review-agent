@@ -1,0 +1,21 @@
+{
+  "repo": "python-attrs/attrs",
+  "number": 1509,
+  "title": "Resolve field aliases before calling field_transformer",
+  "url": "https://github.com/python-attrs/attrs/pull/1509",
+  "base_sha": "f3bcc37c3d2dc3199715f825a86b748c3b3805f9",
+  "head_sha": "1bc10d65305fb3c06954ee960270c578a1357196",
+  "comments": [
+    {
+      "id": 2899261805,
+      "author": "hynek",
+      "path": "src/attr/_make.py",
+      "line": 2636,
+      "url": "https://github.com/python-attrs/attrs/pull/1509#discussion_r2899261805",
+      "body": "```suggestion\n        if len(state) < len(self.__slots__):\n```",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Removes a coverage pragma; tooling, not behaviour."
+    }
+  ]
+}

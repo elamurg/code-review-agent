@@ -1,0 +1,21 @@
+{
+  "repo": "psf/black",
+  "number": 5492,
+  "title": "Keep the parentheses around a right-hand side when a dict value's parentheses are made invisible",
+  "url": "https://github.com/psf/black/pull/5492",
+  "base_sha": "b801776af42c29333afa644f92023eda5c9c8e39",
+  "head_sha": "c139d551b02f78021132e44f62b64b927c30cb1e",
+  "comments": [
+    {
+      "id": 4198014970,
+      "author": "cobaltt7",
+      "path": "src/black/linegen.py",
+      "line": 2549,
+      "url": "https://github.com/psf/black/pull/5492#discussion_r4198014970",
+      "body": "Are there formatting changes if this isn't preview-gated? This reads like a bug fix that could affect more than just this case, for better.",
+      "label": "not_issue",
+      "category": null,
+      "rationale": "Question about whether the change needs a preview gate; process, no defect asserted."
+    }
+  ]
+}
