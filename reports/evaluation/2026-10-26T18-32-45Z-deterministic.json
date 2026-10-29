@@ -1,0 +1,1650 @@
+{
+  "pipeline": "deterministic",
+  "created_at": "2026-10-26T18:32:45+00:00",
+  "git_commit": "aec8a29cf5c22577eacfe92e416d8c2066b0a17d-dirty",
+  "dataset": {
+    "fingerprint": "46780fe464d9",
+    "examples": 46
+  },
+  "options": {
+    "sandbox": false,
+    "network": false,
+    "timeout": 120.0,
+    "line_tolerance": 3
+  },
+  "prompt_versions": [],
+  "tool_versions": {
+    "ruff": "ruff 0.17.2",
+    "mypy": "mypy 2.4.0 (compiled: yes)",
+    "bandit": "bandit 1.9.4",
+    "semgrep": "1.182.1",
+    "pip-audit": "pip-audit 2.10.1"
+  },
+  "metrics": {
+    "precision": 0.05263157894736842,
+    "recall": 0.09090909090909091,
+    "noise_rate_per_100_lines": 0.4417577307602883,
+    "tool_overlap_rate": null,
+    "location_accuracy": 0.0,
+    "counts": {
+      "findings": 19,
+      "issues": 11,
+      "matched": 1,
+      "exact": 0,
+      "agent_findings": 0,
+      "tool_overlaps": 0,
+      "changed_lines": 4301,
+      "silent_examples": 36,
+      "silent_examples_with_findings": 6
+    }
+  },
+  "examples": [
+    {
+      "id": "Textualize__rich__3347",
+      "url": "https://github.com/Textualize/rich/pull/3347",
+      "changed_lines": 63,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "Textualize__rich__3350",
+      "url": "https://github.com/Textualize/rich/pull/3350",
+      "changed_lines": 19,
+      "issues": [
+        {
+          "path": "tests/test_syntax.py",
+          "line": 23,
+          "category": "correctness",
+          "url": "https://github.com/Textualize/rich/pull/3350#discussion_r1586317850"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "Textualize__rich__3845",
+      "url": "https://github.com/Textualize/rich/pull/3845",
+      "changed_lines": 16,
+      "issues": [
+        {
+          "path": "rich/style.py",
+          "line": 22,
+          "category": "correctness",
+          "url": "https://github.com/Textualize/rich/pull/3845#discussion_r2720952894"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "Textualize__rich__4070",
+      "url": "https://github.com/Textualize/rich/pull/4070",
+      "changed_lines": 114,
+      "issues": [
+        {
+          "path": "rich/console.py",
+          "line": 1899,
+          "category": "correctness",
+          "url": "https://github.com/Textualize/rich/pull/4070#discussion_r3067345022"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "Textualize__rich__4079",
+      "url": "https://github.com/Textualize/rich/pull/4079",
+      "changed_lines": 24,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "aio-libs__aiohttp__14012",
+      "url": "https://github.com/aio-libs/aiohttp/pull/14012",
+      "changed_lines": 2,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "encode__httpx__2278",
+      "url": "https://github.com/encode/httpx/pull/2278",
+      "changed_lines": 82,
+      "issues": [
+        {
+          "path": "tests/test_multipart.py",
+          "line": 94,
+          "category": "correctness",
+          "url": "https://github.com/encode/httpx/pull/2278#discussion_r1977589495"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "encode__httpx__3371",
+      "url": "https://github.com/encode/httpx/pull/3371",
+      "changed_lines": 98,
+      "issues": [
+        {
+          "path": "tests/models/test_url.py",
+          "line": 620,
+          "category": "correctness",
+          "url": "https://github.com/encode/httpx/pull/3371#discussion_r1895670033"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "encode__httpx__3440",
+      "url": "https://github.com/encode/httpx/pull/3440",
+      "changed_lines": 14,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "encode__httpx__3445",
+      "url": "https://github.com/encode/httpx/pull/3445",
+      "changed_lines": 4,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "encode__httpx__3773",
+      "url": "https://github.com/encode/httpx/pull/3773",
+      "changed_lines": 5,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__click__3695",
+      "url": "https://github.com/pallets/click/pull/3695",
+      "changed_lines": 177,
+      "issues": [
+        {
+          "path": "src/click/__init__.py",
+          "line": 128,
+          "category": "correctness",
+          "url": "https://github.com/pallets/click/pull/3695#discussion_r3603276582"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__click__3780",
+      "url": "https://github.com/pallets/click/pull/3780",
+      "changed_lines": 32,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__click__3805",
+      "url": "https://github.com/pallets/click/pull/3805",
+      "changed_lines": 60,
+      "issues": [],
+      "findings": [
+        {
+          "file": "tests/test_utils/test_sentinel.py",
+          "line": 67,
+          "severity": "medium",
+          "category": "security",
+          "source": "bandit",
+          "message": "B301: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/test_utils/test_sentinel.py",
+          "line": 86,
+          "severity": "medium",
+          "category": "security",
+          "source": "bandit",
+          "message": "B301: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__click__3818",
+      "url": "https://github.com/pallets/click/pull/3818",
+      "changed_lines": 384,
+      "issues": [
+        {
+          "path": "tests/test_abort_interrupt.py",
+          "line": 191,
+          "category": "correctness",
+          "url": "https://github.com/pallets/click/pull/3818#discussion_r3896043269"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__click__3884",
+      "url": "https://github.com/pallets/click/pull/3884",
+      "changed_lines": 64,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__flask__4935",
+      "url": "https://github.com/pallets/flask/pull/4935",
+      "changed_lines": 78,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__flask__4992",
+      "url": "https://github.com/pallets/flask/pull/4992",
+      "changed_lines": 21,
+      "issues": [
+        {
+          "path": "src/flask/config.py",
+          "line": 249,
+          "category": "correctness",
+          "url": "https://github.com/pallets/flask/pull/4992#discussion_r1114374958"
+        },
+        {
+          "path": "src/flask/config.py",
+          "line": 270,
+          "category": "correctness",
+          "url": "https://github.com/pallets/flask/pull/4992#discussion_r1114375396"
+        }
+      ],
+      "findings": [
+        {
+          "file": "src/flask/config.py",
+          "line": 271,
+          "severity": "medium",
+          "category": "correctness",
+          "source": "mypy",
+          "message": "assignment: Incompatible types in assignment (expression has type \"_WrappedBuffer\", variable has type \"TextIOWrapper[_WrappedBuffer]\")",
+          "prompt_version": null,
+          "matches_human": true
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__flask__6168",
+      "url": "https://github.com/pallets/flask/pull/6168",
+      "changed_lines": 500,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__werkzeug__2981",
+      "url": "https://github.com/pallets/werkzeug/pull/2981",
+      "changed_lines": 238,
+      "issues": [
+        {
+          "path": "src/werkzeug/datastructures/cache_control.py",
+          "line": 245,
+          "category": "correctness",
+          "url": "https://github.com/pallets/werkzeug/pull/2981#discussion_r1824344507"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__werkzeug__3081",
+      "url": "https://github.com/pallets/werkzeug/pull/3081",
+      "changed_lines": 78,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__werkzeug__3128",
+      "url": "https://github.com/pallets/werkzeug/pull/3128",
+      "changed_lines": 79,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__werkzeug__3166",
+      "url": "https://github.com/pallets/werkzeug/pull/3166",
+      "changed_lines": 8,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pallets__werkzeug__3332",
+      "url": "https://github.com/pallets/werkzeug/pull/3332",
+      "changed_lines": 51,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "psf__black__5487",
+      "url": "https://github.com/psf/black/pull/5487",
+      "changed_lines": 105,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "psf__black__5492",
+      "url": "https://github.com/psf/black/pull/5492",
+      "changed_lines": 67,
+      "issues": [],
+      "findings": [
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 151,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `A_LONG_TEMPLATE_CONSTANT_NAME_HERE`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 155,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `A_LONG_CONSTANT_NAME`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 304,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `random_service`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 305,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `make_new_top_level_state_from_dict`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 313,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `Timestamp`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 325,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `A_LONG_TEMPLATE_CONSTANT_NAME_HERE`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 329,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `A_LONG_CONSTANT_NAME`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 322,
+          "severity": "medium",
+          "category": "correctness",
+          "source": "mypy",
+          "message": "no-redef: Name \"C\" already defined on line 148",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/preview_long_dict_values.py",
+          "line": 322,
+          "severity": "low",
+          "category": "style",
+          "source": "ruff",
+          "message": "F811: Redefinition of unused `C` from line 148: `C` redefined here",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "psf__black__5494",
+      "url": "https://github.com/psf/black/pull/5494",
+      "changed_lines": 11,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "psf__black__5530",
+      "url": "https://github.com/psf/black/pull/5530",
+      "changed_lines": 57,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "psf__black__5568",
+      "url": "https://github.com/psf/black/pull/5568",
+      "changed_lines": 20,
+      "issues": [],
+      "findings": [
+        {
+          "file": "tests/data/cases/python315.py",
+          "line": 22,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `items`",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/data/cases/python315.py",
+          "line": 50,
+          "severity": "high",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "F821: Undefined name `items`",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pypa__pip__14235",
+      "url": "https://github.com/pypa/pip/pull/14235",
+      "changed_lines": 48,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pypa__pip__14347",
+      "url": "https://github.com/pypa/pip/pull/14347",
+      "changed_lines": 120,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest__14670",
+      "url": "https://github.com/pytest-dev/pytest/pull/14670",
+      "changed_lines": 123,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest__15011",
+      "url": "https://github.com/pytest-dev/pytest/pull/15011",
+      "changed_lines": 340,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest__15040",
+      "url": "https://github.com/pytest-dev/pytest/pull/15040",
+      "changed_lines": 102,
+      "issues": [
+        {
+          "path": "src/_pytest/config/__init__.py",
+          "line": 1516,
+          "category": "correctness",
+          "url": "https://github.com/pytest-dev/pytest/pull/15040#discussion_r4025551922"
+        }
+      ],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest__15044",
+      "url": "https://github.com/pytest-dev/pytest/pull/15044",
+      "changed_lines": 34,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest__15192",
+      "url": "https://github.com/pytest-dev/pytest/pull/15192",
+      "changed_lines": 2,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "python-attrs__attrs__1463",
+      "url": "https://github.com/python-attrs/attrs/pull/1463",
+      "changed_lines": 53,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "python-attrs__attrs__1509",
+      "url": "https://github.com/python-attrs/attrs/pull/1509",
+      "changed_lines": 310,
+      "issues": [],
+      "findings": [
+        {
+          "file": "src/attr/_make.py",
+          "line": 2639,
+          "severity": "medium",
+          "category": "correctness",
+          "source": "ruff",
+          "message": "B905: `zip()` without an explicit `strict=` parameter",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/test_make.py",
+          "line": 2424,
+          "severity": "medium",
+          "category": "security",
+          "source": "bandit",
+          "message": "B301: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+          "prompt_version": null,
+          "matches_human": false
+        },
+        {
+          "file": "tests/test_make.py",
+          "line": 2483,
+          "severity": "medium",
+          "category": "security",
+          "source": "bandit",
+          "message": "B301: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "python-attrs__attrs__1541",
+      "url": "https://github.com/python-attrs/attrs/pull/1541",
+      "changed_lines": 105,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "python-attrs__attrs__1592",
+      "url": "https://github.com/python-attrs/attrs/pull/1592",
+      "changed_lines": 255,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "python-attrs__attrs__1636",
+      "url": "https://github.com/python-attrs/attrs/pull/1636",
+      "changed_lines": 3,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "scrapy__scrapy__8272",
+      "url": "https://github.com/scrapy/scrapy/pull/8272",
+      "changed_lines": 190,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "scrapy__scrapy__8314",
+      "url": "https://github.com/scrapy/scrapy/pull/8314",
+      "changed_lines": 46,
+      "issues": [],
+      "findings": [
+        {
+          "file": "tests/test_settings/__init__.py",
+          "line": 815,
+          "severity": "medium",
+          "category": "security",
+          "source": "bandit",
+          "message": "B307: Use of possibly insecure function - consider using safer ast.literal_eval.",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "scrapy__scrapy__8332",
+      "url": "https://github.com/scrapy/scrapy/pull/8332",
+      "changed_lines": 53,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "scrapy__scrapy__8335",
+      "url": "https://github.com/scrapy/scrapy/pull/8335",
+      "changed_lines": 37,
+      "issues": [],
+      "findings": [
+        {
+          "file": "scrapy/pqueues.py",
+          "line": 35,
+          "severity": "high",
+          "category": "security",
+          "source": "bandit",
+          "message": "B324: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+          "prompt_version": null,
+          "matches_human": false
+        }
+      ],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "id": "scrapy__scrapy__8389",
+      "url": "https://github.com/scrapy/scrapy/pull/8389",
+      "changed_lines": 9,
+      "issues": [],
+      "findings": [],
+      "tools": [
+        {
+          "tool": "ruff",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "mypy",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "bandit",
+          "status": "ok",
+          "detail": ""
+        },
+        {
+          "tool": "semgrep",
+          "status": "ok",
+          "detail": ""
+        }
+      ]
+    }
+  ]
+}
