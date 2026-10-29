@@ -70,9 +70,12 @@ src/reviewer/
 │   └── files.py           fetch file contents at the PR head
 │
 ├── analysis/            EDGE — deterministic analysers
+│   ├── execution.py       how a tool runs: local process, with timeouts
+│   ├── sandbox.py         the same, inside a locked-down container
 │   ├── linters.py         ruff, mypy
 │   ├── security.py        bandit, semgrep, pip-audit
-│   └── report.py          normalise tool output into Finding objects
+│   ├── report.py          merge, keep changed lines, dedupe; render for agents
+│   └── pipeline.py        run every analyser over a PR and build the report
 │
 ├── context/             EDGE — what else does this change touch
 │   ├── graph.py           Neo4j: imports and call relationships
@@ -96,7 +99,7 @@ src/reviewer/
 │   └── github.py          post the review, handle re-delivery
 │
 ├── storage/             EDGE — Postgres, Redis
-├── evaluation/          golden dataset, metrics, regression runner
+├── evaluation/          golden dataset, metrics, evaluation runner
 └── api/                 FastAPI: webhook endpoint, health, admin
 ```
 
@@ -153,11 +156,11 @@ python -m reviewer.cli replay fixtures/events/pr_opened.json
 
 ---
 
-## Evaluation _(planned)_
+## Evaluation
 
 The thing that makes this a system rather than a demo.
 
-**Dataset.** Merged public PRs that received substantive human review. The human comments are the labels. Held in `data/golden/`, versioned, with the labelling rationale documented.
+**Dataset.** Merged public PRs that received substantive human review. The human comments are the labels. Held in `data/golden/`, versioned, with the selection and labelling rules in [`data/golden/README.md`](data/golden/README.md).
 
 **Metrics.**
 
@@ -171,6 +174,27 @@ The thing that makes this a system rather than a demo.
 | Cost | Tokens and money per review |
 
 Precision and noise rate are the ones that matter. High recall with high noise is a worse product than the reverse.
+
+**Running it.**
+
+```bash
+python -m reviewer.evaluation.runner --pipeline deterministic
+```
+
+Each run writes a timestamped JSON and Markdown report to `reports/evaluation/`, recording the git commit, the dataset fingerprint and every prompt version involved.
+
+**Baseline.** The deterministic pipeline alone (ruff, mypy, bandit, semgrep; no model), recorded 2026-10-26 on dataset `46780fe464d9`: 46 PRs from 11 projects, 66 human comments, 11 labelled issues, 36 PRs where the right review is silence. Tools: ruff 0.17.2, mypy 2.4.0, bandit 1.9.4, semgrep 1.182.1. Full report: [`reports/evaluation/2026-10-26T18-32-45Z-deterministic.md`](reports/evaluation/2026-10-26T18-32-45Z-deterministic.md).
+
+| Metric | Deterministic baseline |
+|---|---|
+| Precision (matches a human) | 5.3% (1/19) |
+| Recall against humans | 9.1% (1/11) |
+| Noise rate | 0.44 findings per 100 changed lines |
+| Tool overlap | n/a (no agent findings) |
+| Location accuracy | 0% (the one match is one line off) |
+| Silent PRs with findings | 6/36 |
+
+The tools are rarely wrong, but most of what they report is not what reviewers raise: undefined names in test input files, `pickle` inside tests about pickling. Every later pipeline is judged against this table.
 
 **Regression gate.** CI runs the evaluation on every change to a prompt file or agent, and fails the build if precision drops or noise rises beyond a threshold. Prompts are versioned files; every finding records the prompt version that produced it.
 
@@ -192,8 +216,8 @@ Recorded in `docs/adr/`. The significant ones:
 ## Roadmap
 
 - [x] GitHub webhook ingestion
-- [ ] Deterministic analysis layer
-- [ ] Evaluation harness and golden dataset
+- [x] Deterministic analysis layer
+- [x] Evaluation harness and golden dataset
 - [ ] Agent pipeline
 - [ ] Code graph context
 - [ ] AWS deployment via Terraform
